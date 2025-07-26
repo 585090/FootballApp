@@ -1,14 +1,19 @@
-import { Link } from "react-router-dom"
-
+import { Footer } from "../Components/Footer"
+import { NavigationBar } from "../Components/NavigatorBar"
 export function Home() {
   return (
     <div className="home">
-      <h1>Welcome to the Football Score Predictions</h1>
+      <header className="home-header">
+      <NavigationBar />
+      </header>
+      
       <p>Your go-to platform for predicting football match outcomes!</p>
-      <Link to="/matches">View Upcoming Matches</Link>
-      <br />
-      <Link to="/Scoreboard">View Scoreboard</Link>
+      
+      <div className="home-footer">
+      <Footer />
+      </div>
     </div>
+    
   )
 }
 

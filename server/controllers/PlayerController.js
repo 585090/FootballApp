@@ -11,6 +11,7 @@ exports.getAllPlayers = async (req, res) => {
 }
 
 exports.createPlayer = async (req, res) => {
+    const { email, name, password } = req.body;
     try {
         const newPlayer = await getDb().collection('players').insertOne(req.body);
         res.json(newPlayer);

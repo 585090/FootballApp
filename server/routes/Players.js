@@ -8,3 +8,5 @@ router.put('/:id', controller.updatePlayerScore);
 router.delete('/:id', controller.deletePlayer);
 
 module.exports = router;
+
+export default router;

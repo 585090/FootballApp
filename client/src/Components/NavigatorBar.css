@@ -21,30 +21,47 @@
     display: flex;
 }
 
+.SignOutButton {
+    background-color: var(--primary-color);
+    border: none;
+    text-decoration: none;
+    color: var(--text-secondary-color);
+    font-weight: bold;
+    padding: 1rem;
+    font-size: 1rem;
+}
+
 .Links {
     text-decoration: none;
     color: var(--text-secondary-color);
     font-weight: bold;
     padding: 1rem;
+    padding-top: 1.2rem;
+    font-size: 1rem;
 }
 
-.Nav-links a:hover {
+.Nav-links a:hover,
+.Nav-links button:hover {
     color: var(--text-primary-color);
     background-color: var(--background-color);
+    cursor: pointer;
 }
 
 @media (max-width: 600px) {
     .Navigation-bar {
         flex-direction: column;
-        align-items: stretch;
+        align-items: center;
         box-sizing: border-box;
+        height: 4rem;
     }
+
     .Logo {
-        text-align: center;
+        display: flex;
         padding-left: 0;
         padding-top: 1rem;
         padding-bottom: 1rem;
-        width: 100%;
+        text-align: center;
+        margin: 0 auto;
     }
     .Nav-links {
         position: fixed;
@@ -54,10 +71,11 @@
         width: 100%;
         display: flex;
     }
-    .Links {
+    .Links, .SignOutButton {
         flex: auto;
         text-align: center;
         padding: 1rem 0.5rem;
         word-break: break-word;
+        font-size: 0.75rem;
     }
 }

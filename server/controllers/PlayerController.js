@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 const { ObjectId } = require('mongodb');
 const { getDb } = require('../db');
 
@@ -12,13 +14,70 @@ exports.getAllPlayers = async (req, res) => {
 
 exports.createPlayer = async (req, res) => {
     const { email, name, password } = req.body;
+    
+    if (!email || !name || !password) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const existingPlayer = await getDb().collection('players').findOne({ email });
+    if (existingPlayer) {
+        return res.status(409).json({ error: 'Player already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log('✅ Hashed password on server:', hashedPassword);
+    const newPlayer = {
+        email,
+        name,
+        password: hashedPassword
+    };
+
+    const result = await getDb().collection('players').insertOne(newPlayer);
+    console.log('Received on server:', result);    
+    return res.status(201).json({
+        message: 'Player registered',
+        player: {
+        email: newPlayer.email,
+        name: newPlayer.name,
+        id: result.insertedId
+    }});
+}
+
+exports.loginPlayer = async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+
     try {
-        const newPlayer = await getDb().collection('players').insertOne(req.body);
-        res.json(newPlayer);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to create player' });
+        const player = await getDb().collection('players').findOne({ email });
+        
+        if (!player) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, player.password);
+
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        res.status(200).json({
+            message: 'Login successful',
+            player: {
+                id: player._id,
+                email: player.email,
+                name: player.name
+            }
+        });
+    } catch (error) {
+        console.error('Login error:', error.message, error.stack);
+        return res.status(500).json({ error: 'Failed to login player' });
     }
 }
+
+
 
 exports.updatePlayerScore = async (req, res) => {
     const { name, score } = req.body;

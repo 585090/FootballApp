@@ -1,0 +1,40 @@
+@import '../assets/themes.css';
+
+.Dashboard-Container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    }
+
+.Dashboard-title {
+    width: 100%;
+    text-align: center;
+    margin: 1rem auto;
+    color: var(--text-color);
+}
+
+.Scoreboard-Container {
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    width: 30rem;
+}
+
+.Match-Container {
+    width: 30rem;
+    display: inline-block;
+    font-size: 2rem;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .Dashboard-Container  {
+        width: 100%;
+    }
+
+    .Match-Container {
+        font-size: 0.6rem;
+        width: 45%;
+    }
+}

@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Match } from "../Components/Match";
 import { MatchDateSwitcher } from "../Components/MatchDateSwitcher";
 import React, { useState } from "react";
@@ -56,7 +55,6 @@ export function MatchList() {
           <Match HT={match.teamA} AT={match.teamB} KickOff={match.kickoff} />
           ))}
         </div>
-        <Link to="/">Go back to home</Link>
       </div>
     </div>
   );

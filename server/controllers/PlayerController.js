@@ -4,13 +4,21 @@ const { ObjectId } = require('mongodb');
 const { getDb } = require('../db');
 
 exports.getAllPlayers = async (req, res) => {
-    try {
-        const players = await getDb().collection('players').find().toArray();
-        res.json(players);
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to get players' });
-    }
-}
+  try {
+    const players = await getDb().collection('players').find().toArray();
+
+    const sanitizedPlayers = players.map(player => ({
+      id: player._id,
+      name: player.name,
+      email: player.email,
+      score: typeof player.score === 'number' ? player.score : 0  // Ensure score is a number
+    }));
+
+    res.json(sanitizedPlayers);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get players' });
+  }
+};
 
 exports.createPlayer = async (req, res) => {
     const { email, name, password } = req.body;
@@ -29,7 +37,8 @@ exports.createPlayer = async (req, res) => {
     const newPlayer = {
         email,
         name,
-        password: hashedPassword
+        password: hashedPassword,
+        score: 0
     };
 
     const result = await getDb().collection('players').insertOne(newPlayer);
@@ -39,7 +48,8 @@ exports.createPlayer = async (req, res) => {
         player: {
         email: newPlayer.email,
         name: newPlayer.name,
-        id: result.insertedId
+        id: result.insertedId,
+        score: newPlayer.score
     }});
 }
 

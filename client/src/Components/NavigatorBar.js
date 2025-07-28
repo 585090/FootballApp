@@ -13,11 +13,10 @@ export function NavigationBar() {
 
   return (
     <div className="Navigation-bar">
-        <h1 className="Logo">Footy Guru</h1>
+        <Link to="/" className='Logo'>Footy Guru</Link>
         <div className="Nav-links">
-            <Link to="/" className="Links">Home</Link>
             <Link to="/matches" className="Links">Matches</Link>
-            <Link to="/scoreboard" className="Links">Scoreboard</Link>
+            <Link to="/dashboard" className='Links'>Dashboard</Link>
             {player ? (
               <button className="SignOutButton" onClick={handleSignOut}>Sign out</button>
             )

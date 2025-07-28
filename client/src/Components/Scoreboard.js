@@ -1,9 +1,7 @@
-import { Link } from 'react-router-dom';
 import './Scoreboard.css';
 import React, { useState, useEffect } from 'react';
-import { NavigationBar } from '../Components/NavigatorBar';
 
-export default function Scoreboard() {
+const Scoreboard = () => {
   const [players, setPlayers] = useState([]);
   //const sortedPlayers = players.sort((a, b) => b.score - a.score);
 
@@ -19,7 +17,6 @@ export default function Scoreboard() {
 
   return (
     <div>
-      <NavigationBar />
       <div className='Scoreboard-container'>
             <h1 className='ScoreboardTitle'>Scoreboard</h1>
             <div className='Scoreboard-header'>
@@ -34,8 +31,9 @@ export default function Scoreboard() {
               <span className='Player-score'>{player.score}</span>
             </div>
           ))}
-        <Link to='/'>Go back to Home</Link>
       </div>
     </div>
   );
 }
+
+export default Scoreboard;

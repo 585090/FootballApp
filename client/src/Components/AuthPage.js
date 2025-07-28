@@ -33,7 +33,7 @@ const AuthPage = () => {
 
     if (response.ok) {
       localStorage.setItem('player', JSON.stringify(data.player));
-      navigate('/', {state: { message: 'Login successful', player: data.player }});
+      navigate('/dashboard', {state: { message: 'Login successful', player: data.player }});
  
     } else {
       alert(data.error || 'Something went wrong');

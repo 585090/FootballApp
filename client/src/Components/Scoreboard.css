@@ -42,7 +42,8 @@
   color: var(--text-secondary-color);
 }
 
-.Player-rank {
+.Player-rank,
+.Player-score {
   flex: 0.4;
   text-align: right;
   padding-right: 0.75rem;
@@ -64,7 +65,8 @@
       padding: 0.5rem 0.3rem 0.5rem 0rem;
     }
 
-    .Player-rank {
-      flex: 0.5;
+    .Player-rank,
+    .Player-score {
+      flex: 0.4;
     }
   }

@@ -42,7 +42,7 @@ exports.createPlayer = async (req, res) => {
     };
 
     const result = await getDb().collection('players').insertOne(newPlayer);
-    console.log('Received on server:', result);    
+    console.log('Received on server:', newPlayer.score);    
     return res.status(201).json({
         message: 'Player registered',
         player: {

@@ -3,7 +3,7 @@ import './Match.css';
 import ReactCountryFlag from "react-country-flag";
 import countryCodes from '../CountryCodes.json';
 
-export const Match = ({ matchid, HT, AT, KickOff, showInfo=true }) => {
+export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status }) => {
     const [homeScore, setHomeScore] = useState(null);
     const [awayScore, setAwayScore] = useState(null);
     
@@ -50,7 +50,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true }) => {
         const predictionData = {
             email: player.email,
             matchid: matchid,
-            teams: {homeTeam: HT, awayTeam: AT},
+            // teams: {homeTeam: HT, awayTeam: AT},
             score: {home: homeScore, away: awayScore}
         };
 
@@ -74,47 +74,96 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true }) => {
         }
     };
 
+
+    const [timeElapsed, setTimeElapsed] = useState('');
+
+    useEffect(() => {
+        let interval;
+
+        if (status === 'ongoing' && KickOff) {
+            const kickoffTime = new Date(KickOff);
+            const updateTime = () => {
+            const now = new Date();
+            const diffMs = now - kickoffTime;
+            const minutes = Math.floor(diffMs / 60000);
+            setTimeElapsed(`${minutes}'`);
+            console.log('TimeElapsed:', KickOff)
+        };
+
+            updateTime(); // run immediately
+            interval = setInterval(updateTime, 60000); // update every minute
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [status, KickOff]);
+
+    function formatTime(kickoff) {
+        const d = new Date(kickoff);
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+
     return (
         <div className="Match-container">
-            {showInfo && (
-            <div className='MatchTime'>
-                <p> { KickOff } </p>
-            </div>
-            )}
-            <div className="HomeTeam">
-                <p className='TeamText'>{HT}</p>
-                <div className='FlagContainer'>
-                    <ReactCountryFlag countryCode={ countryCodes[HT] } className='Flags'svg />
-                </div>
+            <div className='Match-main'>
                 {showInfo && (
-                    <input className='Predictions' 
-                        type="number" 
-                        step="1" 
-                        min={ 0 } 
-                        value={homeScore ?? ''}
-                        inputMode='numeric' 
-                        onChange={(e) => setHomeScore(parseInt(e.target.value || ''))} />
+                <div className='MatchTime'>
+                    <p> { formatTime(KickOff) } </p>
+                </div>
+                )}
+                <span className="HomeTeam">
+                    <p className='TeamText'>{HT}</p>
+                    <div className='FlagContainer'>
+                        <ReactCountryFlag countryCode={ countryCodes[HT] } className='Flags'svg />
+                    </div>
+                        {status !== 'not started' ? (
+                            <p className="FinalScore">{score?.home ?? homeScore ?? '-'}</p>
+                        ) : (
+                            showInfo && (
+                                <input className='Predictions' 
+                                    type="number" 
+                                    step="1" 
+                                    min={0} 
+                                    value={homeScore ?? ''}
+                                    inputMode='numeric' 
+                                    onChange={(e) => setHomeScore(parseInt(e.target.value || ''))} />
+                            )
+                        )}
+                </span>
+                <div className="vs"> <p>vs</p></div>
+                <span className="AwayTeam">
+                    {status !== 'not started' ? (
+                        <p className="FinalScore">{score?.away ?? awayScore ?? '-'}</p>
+                    ) : (
+                        showInfo && (
+                            <input className='Predictions' 
+                                type="number" 
+                                step="1" 
+                                min={0} 
+                                value={awayScore ?? ''}
+                                inputMode='numeric' 
+                                onChange={(e) => setAwayScore(parseInt(e.target.value || ''))} />
+                        )
+                    )}
+                    <div className='FlagContainer'>
+                        <ReactCountryFlag countryCode={ countryCodes[AT] } className='Flags' svg />
+                    </div>
+                    <p className='TeamText'>{AT}</p>
+                </span>
+                {showInfo && (
+                <div className='Prediction-Container'>
+                    <button className='Prediction-button' onClick={handleSubmit}>Predict</button>
+                </div>
                 )}
             </div>
-            <div className="vs"> <p>vs</p></div>
-            <span className="AwayTeam">
-                {showInfo && (
-                <input className='Predictions' 
-                    type="number" 
-                    step="1"
-                    min={ 0 } 
-                    value={awayScore ?? ''} 
-                    inputMode='numeric' 
-                    onChange={(e) => setAwayScore(parseInt(e.target.value || ''))} />
-                )}      
-                <div className='FlagContainer'>
-                    <ReactCountryFlag countryCode={ countryCodes[AT] } className='Flags' svg />
-                </div>
-                <p className='TeamText'>{AT}</p>
-            </span>
-            {showInfo && (
-            <div className='Prediction-Container'>
-                <button className='Prediction-button' onClick={handleSubmit}>Predict</button>
+            {showInfo && status !== 'not started' && (
+            <div className='MatchStatus'>
+                <p>
+                {status}
+                {status === 'ongoing' && (
+                    <> {timeElapsed}</>
+                )}
+                </p> 
             </div>
             )}
         </div>

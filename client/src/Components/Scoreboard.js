@@ -15,6 +15,10 @@ const Scoreboard = () => {
       .catch(error => console.error('Error fetching players:', error));
   })
 
+  useEffect(() => {
+    fetch('http://localhost:5000/api/predictions')
+  })
+
   return (
     <div>
       <div className='Scoreboard-container'>

@@ -38,18 +38,18 @@ exports.createPlayer = async (req, res) => {
         email,
         name,
         password: hashedPassword,
-        score: 0
+        points: 0
     };
 
     const result = await getDb().collection('players').insertOne(newPlayer);
-    console.log('Received on server:', newPlayer.score);    
+    console.log('Received on server:', newPlayer.points);    
     return res.status(201).json({
         message: 'Player registered',
         player: {
         email: newPlayer.email,
         name: newPlayer.name,
         id: result.insertedId,
-        score: newPlayer.score
+        points: newPlayer.points
     }});
 }
 

@@ -2,22 +2,31 @@
 
 .Match-container {
   display: flex;
+  flex-direction: column; /* Stack .Match-main and .MatchStatus vertically */
   align-items: center;
-  justify-content: space-between;
-  margin: 1rem auto;
+  justify-content: center;
   background-color: var(--primary-color);
   border-radius: 1.2rem;
   max-width: 55rem;
-  height: 10rem;
+  margin: 1rem auto;
+  max-width: 55rem;
+  max-height: 14rem;
+}
+
+.Match-main {
+  display: flex;
   flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
 }
 
 .MatchTime {
-  height: 100%;
   flex: 0 0 5rem;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   color: var(--text-secondary-color);
   font-size: 1.2rem;
   font-weight: bold;
@@ -47,22 +56,38 @@
   justify-content: flex-start;
   float: left;
 }
+
 .vs {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--text-secondary-color);
 }
 
 .Predictions {
-    width: 3rem;
-    height: 3rem;
-    font-size: 1.2rem;
-    text-align: center;
-    border: none;
-    background-color: var(--background-color);
-    border-radius: 5px;
-    margin: 2rem;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.2rem;
+  text-align: center;
+  border: none;
+  background-color: var(--background-color);
+  border-radius: 5px;
+  margin: 2rem;
+}
+
+.FinalScore {
+  width: 3rem;
+  height: 3rem;
+  font-size: 2rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary-color);;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .FlagContainer {
@@ -84,33 +109,46 @@
 
 .Prediction-Container {
   display: flex;
+  justify-content: center;
+  align-items: center;
   width: 7rem;
 }
 
 .Prediction-button {
-    width: 5rem;
-    height: 5rem;
-    text-align: center;
-    background: var(--background-color);
-    border: 0.2rem solid black;
-    border-radius: 5rem;
-    font-size: 1rem;
-    font-weight: bold;
-    color: var(--text-color);
-    padding: 0.4rem;
-    margin-right: 1rem;
+  width: 5rem;
+  height: 5rem;
+  text-align: center;
+  background: var(--background-color);
+  border: 0.2rem solid black;
+  border-radius: 5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-color);
+  padding: 0.4rem;
+  margin-right: 1rem;
 }
 
 .Prediction-button:hover {
-    color: var(--text-primary-color);
-    background-color: var(--secondary-color);
-    cursor: pointer;
+  color: var(--text-primary-color);
+  background-color: var(--secondary-color);
+  cursor: pointer;
+}
+
+.MatchStatus {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--text-color);
+  border-top: 2px solid var(--text-secondary-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 @media (max-width: 600px) {
   .Match-container {
     width: 95%;
-    height: 5rem;
+    height: 7rem;
     padding: 0;
   }
 
@@ -148,5 +186,9 @@
     height: 3rem;
     font-size: 0.6rem;
     border: 0.15rem solid black;
+  }
+
+  .MatchStatus {
+    font-size: 1rem;
   }
 }

@@ -1,6 +1,7 @@
 import { Match } from '../Components/Match';
 import Scoreboard from '../Components/Scoreboard';
-import { NavigationBar } from '../Components/NavigatorBar';
+import { NavigationBar } from '../Components/NavigationBar';
+import { GroupList } from '../Components/GroupList';
 import './Dashboard.css';
 import React, { useState, useEffect } from 'react';
 
@@ -17,7 +18,7 @@ export default function Dashboard() {
         setPlayers(sortedPlayers);
         })
         .catch(error => console.error('Error fetching players:', error));
-    })
+    }, [])
 
     //Get todays matches
     function sortMatchesByKickOff(matches) {
@@ -58,8 +59,8 @@ export default function Dashboard() {
                         showInfo={false}/>)
                     )}
                 </div>
-                <div className='Scoreboard-Container'>
-                    <Scoreboard className="Scoreboard"/>
+                <div className='Group-Container'>
+                    <GroupList className="GroupList"/>
                 </div>
             </div>
         </div>

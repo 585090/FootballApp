@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AuthPage.css'
-import { NavigationBar } from './NavigatorBar';
+import { NavigationBar } from './NavigationBar';
 import { Footer } from './Footer'
 
 const AuthPage = () => {

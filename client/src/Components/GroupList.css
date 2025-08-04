@@ -1,0 +1,85 @@
+@import '../assets/themes.css';
+
+.GroupList-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: auto;
+  margin-top: 2rem;
+  background-color: var(--primary-color);
+  border-radius: 10px;
+  width: 35rem;
+}
+
+.GroupList-title {
+  width: 100%;
+  text-align: center;
+  padding: 1rem 0 1rem 0;
+  margin: auto;
+  border-bottom: 1px solid white;
+  color: var(--text-secondary-color);
+}
+
+.Group, .GroupList-header {
+  display: flex;
+  border-bottom: 1px solid white;
+  width: 100%;
+  text-decoration: none;
+}
+
+.GroupList-header {
+    font-weight: bold;
+    align-items: center;
+    color: var(--text-secondary-color);
+}
+
+.Group-name,
+.Group-tournament,
+.Group-points {
+  flex: 1;
+  font-size: 1.2rem;
+  padding: 0.3rem;
+  text-align: center;
+  border-right: 1px solid white;
+  color: var(--text-secondary-color);
+}
+
+.Group:hover {
+  background-color: var(--secondary-color);
+}
+
+.CreateGroup-button {
+  font-size: 1rem;
+  font-weight: bold;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  color: var(--text-secondary-color);
+}
+
+.CreateGroup-button:hover {
+  background-color: var(--secondary-color);
+}
+
+@media (max-width: 600px) {
+    .GroupList-container {
+      width: 11rem;
+    }
+
+    .GroupList-title {
+      font-size: 1rem;
+    }
+
+    .Group-name,
+    .Group-tournament,
+    .Group-points {
+      font-size: 0.7rem;
+      padding: 0.5rem 0.3rem 0.5rem 0rem;
+    }
+
+    .Group-name,
+    .Group-points {
+      flex: 0.4;
+    }
+  }

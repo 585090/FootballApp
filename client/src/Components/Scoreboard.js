@@ -1,5 +1,6 @@
 import './Scoreboard.css';
 import React, { useState, useEffect } from 'react';
+import {NavigationBar} from './NavigationBar'
 
 const Scoreboard = () => {
   const [players, setPlayers] = useState([]);
@@ -15,12 +16,9 @@ const Scoreboard = () => {
       .catch(error => console.error('Error fetching players:', error));
   })
 
-  useEffect(() => {
-    fetch('http://localhost:5000/api/predictions')
-  })
-
   return (
     <div>
+      <NavigationBar />
       <div className='Scoreboard-container'>
             <h1 className='ScoreboardTitle'>Scoreboard</h1>
             <div className='Scoreboard-header'>

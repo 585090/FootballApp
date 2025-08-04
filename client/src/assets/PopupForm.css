@@ -1,0 +1,70 @@
+@import '../assets/themes.css';
+
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Popup content box */
+.popup-content {
+  background: var(--primary-color);
+  border-radius: 8px;
+  padding: 24px 30px;
+  width: 320px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+}
+
+/* Form styles */
+.popup-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+h1 {
+    color: var(--text-secondary-color);
+    text-align: center;
+}
+
+/* Input & select */
+.popup-content input[type="text"],
+.popup-content select {
+  padding: 10px 12px;
+  font-size: 16px;
+  border: 1.5px solid var(--text-color);
+  border-radius: 6px;
+  outline-offset: 2px;
+  transition: border-color 0.3s ease;
+}
+
+.popup-content input[type="text"]:focus,
+.popup-content select:focus {
+  border-color: #007bff;
+}
+
+/* Submit button */
+.popup-content button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.popup-content button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
+.popup-content .close-btn:hover {
+  color: #555;
+}

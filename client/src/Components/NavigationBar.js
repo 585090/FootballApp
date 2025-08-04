@@ -1,8 +1,8 @@
-import './NavigatorBar.css';
+import './NavigationBar.css';
 import { Link, useNavigate } from 'react-router-dom';
 
 
-export function NavigationBar() {
+export const NavigationBar = () => {
   const navigate = useNavigate();
   const player = JSON.parse(localStorage.getItem('player'));
 

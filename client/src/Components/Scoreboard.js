@@ -1,38 +1,26 @@
 import './Scoreboard.css';
 import React, { useState, useEffect } from 'react';
-import {NavigationBar} from './NavigationBar'
 
-const Scoreboard = () => {
-  const [players, setPlayers] = useState([]);
-  //const sortedPlayers = players.sort((a, b) => b.score - a.score);
+const Scoreboard = ({ players }) => {
 
-  useEffect(() => {
-    fetch('http://localhost:5000/api/players')
-      .then(response => response.json())
-      .then(data => {
-        const sortedPlayers = data.sort((a,b) => b.score - a.score);
-        setPlayers(sortedPlayers);
-      })
-      .catch(error => console.error('Error fetching players:', error));
-  })
+ const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
 
   return (
     <div>
-      <NavigationBar />
       <div className='Scoreboard-container'>
-            <h1 className='ScoreboardTitle'>Scoreboard</h1>
-            <div className='Scoreboard-header'>
-              <span className='Player-rank'>Rank</span>
-              <span className='Player-name'>Player</span>
-              <span className='Player-score'>Score</span>
-            </div>
-          {players.map((player) => (
-            <div key={player.name} className='Player'>
-              <span className='Player-rank'>{players.indexOf(player) + 1}.</span>
-              <span className='Player-name'>{player.name}</span>
-              <span className='Player-score'>{player.score}</span>
-            </div>
-          ))}
+        <h1 className='ScoreboardTitle'>Scoreboard</h1>
+        <div className='Scoreboard-header'>
+          <span className='Player-rank'>Rank</span>
+          <span className='Player-name'>Player</span>
+          <span className='Player-score'>Score</span>
+        </div>
+        {sortedPlayers.map((player, index) => (
+          <div key={player.name} className='Player'>
+            <span className='Player-rank'>{index + 1}.</span>
+            <span className='Player-name'>{player.name}</span>
+            <span className='Player-score'>{player.score}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

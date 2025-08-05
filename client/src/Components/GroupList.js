@@ -7,16 +7,22 @@ import { CreateGroup } from './CreateGroup';
 export const GroupList = () => {
     const [isPopupOpen, setPopupOpen] = useState(false);
     const togglePopup = () => setPopupOpen(!isPopupOpen);
-
     const [groups, setGroups] = useState([]);
-    
+
     useEffect(() => {
-        fetch('http://localhost:5000/api/groups')
+        const loggedInPlayer = JSON.parse(localStorage.getItem('player'));
+        const playerEmail = loggedInPlayer?.email;
+        
+        fetch(`http://localhost:5000/api/groups/player/${playerEmail}`)
         .then(response => response.json())
         .then(data => {
-            setGroups(data)
+            if (Array.isArray(data)) {
+                setGroups(data);
+            } else {
+                setGroups([]);
+            }
         }).catch(error => console.error('Error fetching groups:',error))
-    }, [])
+    }, [groups])
 
     return (
         <div>
@@ -28,7 +34,7 @@ export const GroupList = () => {
             <span className='Group-points'>Points</span>
             </div>
             {groups.map((group) => (
-            <Link to='/scoreboard' key={group.id} className='Group'>
+            <Link to={`/group/${encodeURIComponent(group.id)}`} key={group.id} className='Group'>
                 <div className='Group-name'>{group.name}</div>
                 <div className='Group-tournament'>{group.tournament}</div>
                 <div className='Group-points'>0</div>

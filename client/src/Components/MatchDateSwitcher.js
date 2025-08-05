@@ -29,10 +29,9 @@ export function MatchDateSwitcher({ onDateChange }) {
 
   const setToday = () => {
     const today = new Date();
-    today.setDate(today.getDate());
     setSelectedDate(today);
     onDateChange?.(today);
-  }
+  };
 
   const formatDate = (date) => {
     if (isToday(date)) return "Today";
@@ -44,13 +43,37 @@ export function MatchDateSwitcher({ onDateChange }) {
     });
   };
 
+  // Handler for when user picks a date from calendar input
+  const handleDateChange = (e) => {
+    const pickedDate = new Date(e.target.value);
+    if (!isNaN(pickedDate)) {
+      setSelectedDate(pickedDate);
+      onDateChange?.(pickedDate);
+    }
+  };
+
+  // Format the date to yyyy-mm-dd for the input value
+  const toInputDateString = (date) => {
+    return date.toISOString().split("T")[0];
+  };
+
   return (
     <div className="Container">
       <div className="DateSwitcherRow">
         <button className="DateButtons" onClick={handlePrevious}>&larr;</button>
         <span className="Date">{formatDate(selectedDate)}</span>
-        <button className="DateButtons" onClick={handleNext}>&rarr; </button>
+        <button className="DateButtons" onClick={handleNext}>&rarr;</button>
       </div>
+
+      <div style={{ marginTop: 10 }}>
+        <input
+          type="date"
+          value={toInputDateString(selectedDate)}
+          onChange={handleDateChange}
+          className="DatePicker"
+        />
+      </div>
+
       <div>
         <button className="ResetDateButton" onClick={setToday}>Move to today</button>
       </div>

@@ -1,5 +1,4 @@
 import './Scoreboard.css';
-import React, { useState, useEffect } from 'react';
 
 const Scoreboard = ({ players }) => {
 

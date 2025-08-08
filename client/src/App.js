@@ -3,7 +3,7 @@ import React from 'react';
 import { Home } from './Pages/Home';
 import { MatchList } from './Pages/matchList';
 import Scoreboard from './Components/Scoreboard';
-import AuthPage from './Components/AuthPage';
+import AuthPage from './Components/utils/AuthPage';
 import ProtectedRoute from './assets/ProtectedRoute'
 import Dashboard from './Pages/Dashboard'
 import GroupPage from './Pages/Group'

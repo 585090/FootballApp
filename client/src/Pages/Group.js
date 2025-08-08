@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Scoreboard from '../Components/Scoreboard';
-import { NavigationBar } from '../Components/NavigationBar';
+import { NavigationBar } from '../Components/utils/NavigationBar';
 import { useParams } from 'react-router-dom';
 import './Group.css'
 import '../assets/PopupForm.css';

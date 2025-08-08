@@ -1,5 +1,5 @@
-import { Footer } from "../Components/Footer"
-import { NavigationBar } from "../Components/NavigationBar"
+import { Footer } from "../Components/utils/Footer"
+import { NavigationBar } from "../Components/utils/NavigationBar"
    import { useLocation } from 'react-router-dom';
 
 

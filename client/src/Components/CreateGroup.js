@@ -8,8 +8,16 @@ export const CreateGroup = ({ togglePopup }) => {
         { id: "1", name: "Champions League" },
         { id: "2", name: "Europa League" },
         { id: "3", name: "Conference League" },
+        { id: "4", name: "Premier League" }
     ]);
-    const [Groupform, setGroupform] = useState({ groupName: '', tournament: '' });
+
+    const [gamemodes] = useState([
+        { id: "1", name: "Predict table" },
+        { id: "2", name: "Predict scores" }
+    ]);
+
+
+    const [Groupform, setGroupform] = useState({ groupName: '', tournament: '', gamemode: '' });
 
     const handleChange = (e) => {
         setGroupform({ ...Groupform, [e.target.name]: e.target.value });
@@ -73,6 +81,20 @@ export const CreateGroup = ({ togglePopup }) => {
                 {tournaments.map((tournament) => (
                     <option key={tournament.id} value={tournament.name}>
                     {tournament.name}
+                    </option>
+                ))}
+                </select>
+                <select
+                    className='Tournament-dropdown'
+                    name='gamemode'
+                    value={Groupform.gamemode}
+                    onChange={handleChange}
+                    required
+                >
+                <option value="">-- Select gamemode --</option>
+                {gamemodes.map((game) => (
+                    <option key={game.id} value={game.name}>
+                    {game.name}
                     </option>
                 ))}
                 </select>

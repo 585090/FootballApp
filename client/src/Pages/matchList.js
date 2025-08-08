@@ -1,8 +1,8 @@
 import { Match } from "../Components/Match";
-import { MatchDateSwitcher } from "../Components/MatchDateSwitcher";
+import { MatchDateSwitcher } from "../Components/utils/MatchDateSwitcher";
 import React, { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { NavigationBar } from '../Components/NavigationBar';
+import { NavigationBar } from '../Components/utils/NavigationBar';
 
 export function MatchList() {
   const isMobile = useMediaQuery({ maxWidth: 600 });

@@ -14,11 +14,10 @@
     color: var(--text-color);
 }
 
-.GroupList-Container {
+.Group-Container {
     display: flex;
     justify-content: center;
-    margin: auto;
-    width: 30rem;
+    margin-right: 2rem;
 }
 
 .Match-Container {
@@ -28,9 +27,17 @@
     text-align: center;
 }
 
+.PredictionTable {
+    border: 2px solid aqua;
+}
+
 @media (max-width: 600px) {
     .Dashboard-Container  {
         width: 100%;
+    }
+
+    .Group-Container {
+        margin-right: 1rem;
     }
 
     .Match-Container {

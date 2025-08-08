@@ -1,7 +1,8 @@
 import { Match } from '../Components/Match';
 import Scoreboard from '../Components/Scoreboard';
-import { NavigationBar } from '../Components/NavigationBar';
+import { NavigationBar } from '../Components/utils/NavigationBar';
 import { GroupList } from '../Components/GroupList';
+import PredictionTable from '../Components/predictionTable/PredictionTable';
 import './Dashboard.css';
 import React, { useState, useEffect } from 'react';
 
@@ -60,7 +61,7 @@ export default function Dashboard() {
                     )}
                 </div>
                 <div className='Group-Container'>
-                    <GroupList className="GroupList"/>
+                    <GroupList />
                 </div>
             </div>
         </div>

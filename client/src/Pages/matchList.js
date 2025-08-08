@@ -1,21 +1,27 @@
 import { Match } from "../Components/Match";
-import { MatchDateSwitcher } from "../Components/MatchDateSwitcher";
+import { MatchDateSwitcher } from "../Components/utils/MatchDateSwitcher";
 import React, { useEffect, useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import { NavigationBar } from '../Components/NavigationBar';
+import { NavigationBar } from '../Components/utils/NavigationBar';
 
 export function MatchList() {
   const isMobile = useMediaQuery({ maxWidth: 600 });
   const [currentDate, setCurrentDate] = useState(new Date());
   const [matches, setMatches] = useState([]);
-
+  const [errorMessage, setErrorMessage] = useState(null);
   useEffect(() => {
     const getMatches = async () => {
       const dateStr = currentDate.toISOString().split('T')[0];
 
       try {
-        const response = await fetch(`http://localhost:5000/api/matches?date=${dateStr}`);
+        const response = await fetch(`http://localhost:5000/api/matches/by-date?date=${dateStr}`);
         const data = await response.json();
+
+        if (!response.ok) {
+          // Handle known error from server
+          setErrorMessage(data.error || 'Failed to add player');
+          return;
+        }
 
         // Optional: Sort here if you want to store sorted version
         setMatches(sortMatchesByKickOff(data));
@@ -47,12 +53,13 @@ export function MatchList() {
         </div>
 
         <div>
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
           {matches.map((match) => (
             <Match
               key={match.id}
               matchid={match.id}
-              HT={match.teamA}
-              AT={match.teamB}
+              HT={match.homeTeam}
+              AT={match.awayTeam}
               KickOff={match.kickoff}
               score={match.score}
               status={match.status}

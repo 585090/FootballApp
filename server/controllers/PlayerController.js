@@ -4,21 +4,33 @@ const { ObjectId } = require('mongodb');
 const { getDb } = require('../db');
 
 exports.getAllPlayers = async (req, res) => {
-  try {
-    const players = await getDb().collection('players').find().toArray();
+    try {
+        const players = await getDb().collection('players').find().toArray();
 
-    const sanitizedPlayers = players.map(player => ({
-      id: player._id,
-      name: player.name,
-      email: player.email,
-      score: typeof player.score === 'number' ? player.score : 0  // Ensure score is a number
-    }));
+        const sanitizedPlayers = players.map(player => ({
+        id: player._id,
+        name: player.name,
+        email: player.email,
+        score: typeof player.score === 'number' ? player.score : 0  // Ensure score is a number
+        }));
 
-    res.json(sanitizedPlayers);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to get players' });
-  }
+        res.json(sanitizedPlayers);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get all players' });
+    }
 };
+
+exports.getPlayersByGroup = async (req, res) => {
+    try {
+        const playersInGroup = await db.collection('players').find({
+            groupIds: groupId
+            }).toArray();
+        
+            res.json(playersInGroup);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to get players by group' });
+    }
+}
 
 exports.createPlayer = async (req, res) => {
     const { email, name, password } = req.body;
@@ -106,9 +118,29 @@ exports.updatePlayerScore = async (req, res) => {
             res.status(404).json({ error: 'Player not found or score unchanged' });
         }
     
-    } catch (err) {
+    } catch (error) {
         res.status(500).json({ error: 'Failed to update player score' });
     }
+}
+
+exports.updatePlayerGroups = async (req, res) => {
+    const { email, groupID } = req.body;
+
+    try {
+        const existingGroupConnection = await getDb().collection('players').findOne({ groupID });
+        if (existingGroupConnection) {
+            return res.status(409).json({ error: 'Player already connected to group' });
+    }
+        else {
+            const playerGroup = await getDb().collection('players').updateOne(
+                { email },
+                { $addToSet: { groupIds: ObjectId("newGroupId") } }
+            );
+        }
+
+        } catch (error) {
+            res.status(500).json({ error: 'Failed to connect player to group' });
+        }
 }
 
 exports.deletePlayer = async (req, res) => {
@@ -121,7 +153,7 @@ exports.deletePlayer = async (req, res) => {
             res.status(404).json({ error: 'Player not found' });
         }
     
-    } catch (err) {
+    } catch (error) {
         res.status(500).json({ error: 'Failed to delete player' });
     }
 }

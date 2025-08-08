@@ -3,9 +3,10 @@ import React from 'react';
 import { Home } from './Pages/Home';
 import { MatchList } from './Pages/matchList';
 import Scoreboard from './Components/Scoreboard';
-import AuthPage from './Components/AuthPage';
-import ProtectedRoute from './Components/ProtectedRoute'
+import AuthPage from './Components/utils/AuthPage';
+import ProtectedRoute from './assets/ProtectedRoute'
 import Dashboard from './Pages/Dashboard'
+import GroupPage from './Pages/Group'
 import './App.css';
 
 function App() {
@@ -20,6 +21,9 @@ function App() {
         <Route 
           path="/scoreboard" 
           element={<ProtectedRoute> <Scoreboard /> </ProtectedRoute>} />
+        <Route 
+          path="/group/:groupId" 
+          element={<ProtectedRoute> <GroupPage /> </ProtectedRoute>} />
         <Route 
           path="/dashboard" 
           element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />

@@ -1,0 +1,13 @@
+@import "../../assets/themes.css";
+.footer {
+    background-color: var(--primary-color);
+    bottom: 0;
+    position: fixed;
+    width: 100%;
+}
+
+@media (max-width: 600px) {
+    .footer {
+        display: none;
+    }
+}

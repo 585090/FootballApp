@@ -1,6 +1,7 @@
 import { Footer } from "../Components/utils/Footer"
 import { NavigationBar } from "../Components/utils/NavigationBar"
-   import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import PredictionTable from '../Components/predictionTable/PredictionTable';
 
 
 export function Home() {
@@ -14,10 +15,7 @@ export function Home() {
       </header>
       {message && <p>{ message }</p>}
       <p>Your go-to platform for predicting football match outcomes!</p>
-      
-      <div className="home-footer">
-      <Footer />
-      </div>
+      <PredictionTable competition={'PL'} />
     </div>
     
   )

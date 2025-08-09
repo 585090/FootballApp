@@ -123,26 +123,6 @@ exports.updatePlayerScore = async (req, res) => {
     }
 }
 
-exports.updatePlayerGroups = async (req, res) => {
-    const { email, groupID } = req.body;
-
-    try {
-        const existingGroupConnection = await getDb().collection('players').findOne({ groupID });
-        if (existingGroupConnection) {
-            return res.status(409).json({ error: 'Player already connected to group' });
-    }
-        else {
-            const playerGroup = await getDb().collection('players').updateOne(
-                { email },
-                { $addToSet: { groupIds: ObjectId("newGroupId") } }
-            );
-        }
-
-        } catch (error) {
-            res.status(500).json({ error: 'Failed to connect player to group' });
-        }
-}
-
 exports.deletePlayer = async (req, res) => {
     try {
         const result = await getDb().collection('players').deleteOne({ _id: ObjectId(req.params.id) });

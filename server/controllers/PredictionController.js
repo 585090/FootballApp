@@ -54,3 +54,40 @@ exports.makePrediction = async (req, res) => {
         prediction: { score, matchid, email }
     });
 }
+
+exports.storePlayersPredictionTable = async (req, res) => {
+    const { email, competition, season, prediction } = req.body;
+
+    try {
+        const savedPrediction = await getDb().collection('predictions').findOneAndUpdate(
+            { email, competition, season },
+            { $set: { email, competition, season, prediction } },
+            {upsert: true, new: true}
+        );
+
+        res.json(savedPrediction)
+        console.log('Predictions saved for:', savedPrediction.email)
+    
+    } catch (error) {
+        console.error("❌ Backend error in storing prediction table:", error);
+        return res.status(500).json({ error: 'Failed to store table' })
+    }
+};
+
+exports.getPredictionTable = async (req, res) => {
+    const {email, competition, season} = req.query;
+
+    try {
+        const predictionTable = await getDb().collection('predictions').findOne({
+            email, competition, season
+        })
+
+        if(!predictionTable) return res.status(400).json({error: 'Predictions not found'})
+        res.json(predictionTable.prediction);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: '❌ Backend error, failed to fetch prediction table'})
+    }
+}
+

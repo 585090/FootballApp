@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import React from 'react';
 import { Home } from './Pages/Home';
 import { MatchList } from './Pages/matchList';
+import { Matchday } from './Pages/Matchday';
 import Scoreboard from './Components/Scoreboard';
 import AuthPage from './Components/utils/AuthPage';
 import ProtectedRoute from './assets/ProtectedRoute'
@@ -27,7 +28,11 @@ function App() {
         <Route 
           path="/dashboard" 
           element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />
+        <Route 
+          path="/matchday" 
+          element={<ProtectedRoute> <Matchday /> </ProtectedRoute>} />
       </Routes>
+      
     </Router>
   );
 }

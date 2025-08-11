@@ -1,6 +1,7 @@
 import './Scoreboard.css';
+import { UserPlusIcon } from '@phosphor-icons/react';
 
-const Scoreboard = ({ players }) => {
+const Scoreboard = ({ players, handleClick }) => {
 
  const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
 
@@ -20,6 +21,7 @@ const Scoreboard = ({ players }) => {
             <span className='Player-score'>{player.score || '-'}</span>
           </div>
         ))}
+        <button className='Scoreboard-AddPlayerButton' onClick={handleClick}> <UserPlusIcon size={32} color='white'/> </button>
       </div>
     </div>
   );

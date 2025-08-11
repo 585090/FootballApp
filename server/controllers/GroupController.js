@@ -64,7 +64,7 @@ exports.getGroupById = async (req, res) => {
 }
 
 exports.createGroup = async (req, res) => {
-    const { groupName, tournament, email } = req.body;
+    const { groupName, tournament, gamemodeId, email } = req.body;
     
     if (!groupName || !tournament) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -78,6 +78,7 @@ exports.createGroup = async (req, res) => {
     const newGroup = {
         groupName,
         tournament,
+        gamemodeId,
         owner: email
     };
 
@@ -97,6 +98,7 @@ exports.createGroup = async (req, res) => {
           id: result.insertedId,
           name: newGroup.groupName,
           tournament: newGroup.tournament,
+          gamemode: newGroup.gamemodeId,
           owner: newGroup.owner
     }}); 
 

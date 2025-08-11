@@ -49,9 +49,16 @@
   padding-right: 0.75rem;
 }
 
+.Scoreboard-AddPlayerButton {
+  display: flex;
+  background: none;
+  border: none;
+  float: right;
+}
+
 @media (max-width: 600px) {
     .Scoreboard-container {
-      width: 11rem;
+      width: 20rem;
     }
 
     .ScoreboardTitle {

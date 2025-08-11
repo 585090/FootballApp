@@ -35,6 +35,7 @@ export const CreateGroup = ({ togglePopup }) => {
         const bodyData = {
             groupName: Groupform.groupName.trim(),
             tournament: Groupform.tournament,
+            gamemode: Groupform.gamemode.id,
             email
         };
         

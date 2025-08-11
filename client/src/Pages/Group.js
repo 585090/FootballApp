@@ -4,8 +4,7 @@ import { NavigationBar } from '../Components/utils/NavigationBar';
 import { useParams } from 'react-router-dom';
 import './Group.css'
 import '../assets/PopupForm.css';
-import { CreateGroup } from '../Components/CreateGroup';
-import PredictionTable from '../Components/predictionTable/PredictionTable';
+import { Link } from 'react-router-dom';
 
 export default function GroupPage() {
   
@@ -26,7 +25,7 @@ export default function GroupPage() {
   }, [groupId])
     
     if (!group) {
-      return <div>Loading group...</div>; // Don't render anything until data is ready
+      return <div>Loading group...</div>;
     }
 
   const handleChange = (e) => {
@@ -69,8 +68,7 @@ export default function GroupPage() {
       <NavigationBar />
         <h1 className='GroupPage-title'>{group?.groupName || 'Loading...'}</h1>
         <div className='GroupPage-container'>
-            <Scoreboard players={ group.members || []} />
-            <button className='GroupPageAddPlayer-button' onClick={togglePopup}>Add player</button>
+            <Scoreboard players={ group.members || []} handleClick={togglePopup} />
         </div>
         {isPopupOpen && (
             <div className="popup-overlay" onClick={togglePopup}>
@@ -88,12 +86,15 @@ export default function GroupPage() {
                       required
                     />
                   {errorMessage && <p className="error-message">{errorMessage}</p>}
-                  <button type='submit' className='AddPlayerToGroup-button'>Add</button>
+                  <button type='submit' className='AddPlayerToGroup-button'>Add</button>  
                   </form>
                 </div>
             </div>
             </div>
         )}
+        <div>
+          <Link to='/matchday'>Predict scores</Link>
+        </div>
     </div>
     )
 }

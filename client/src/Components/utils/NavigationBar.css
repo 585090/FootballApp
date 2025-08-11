@@ -13,17 +13,21 @@
     color: var(--text-secondary-color);
     font-weight: bold;
     text-decoration: none;
-    margin: auto 2rem;
-    /* Removed padding */
 }
+
+.header-NavBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    }
 
 .Nav-links {
     float: right;
     display: flex;
+    text-align: center;
 }
-
-.SignOutButton,
-.Links {
+.Links, .SignOutButton {
     background-color: var(--primary-color);
     border: none;
     text-decoration: none;
@@ -42,8 +46,17 @@
     cursor: pointer;
 }
 
+.SignOutButton {
+    position: static; 
+    margin-left: auto; 
+    cursor: pointer;
+    display: flex;
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+
 @media (max-width: 600px) {
-    .Navigation-bar {
+    .header-NavBar {
         flex-direction: column;
         align-items: center;
         box-sizing: border-box;
@@ -59,6 +72,7 @@
         text-align: center;
         margin: 0 auto;
     }
+
     .Nav-links {
         position: fixed;
         bottom: 0;
@@ -67,11 +81,19 @@
         width: 100%;
         display: flex;
     }
-    .Links, .SignOutButton {
+    .Links {
         flex: auto;
         text-align: center;
         padding: 1rem 0.5rem;
         word-break: break-word;
         font-size: 0.75rem;
     }
+
+    .SignOutButton {
+        position: fixed;
+        top: 0.5rem;
+        right: 1rem;
+        padding: 0.5rem;
+        background-color: var(--primary-color);
+  }
 }

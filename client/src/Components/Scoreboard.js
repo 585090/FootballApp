@@ -17,7 +17,7 @@ const Scoreboard = ({ players }) => {
           <div key={player.name} className='Player'>
             <span className='Player-rank'>{index + 1}.</span>
             <span className='Player-name'>{player.name}</span>
-            <span className='Player-score'>{player.score}</span>
+            <span className='Player-score'>{player.score || '-'}</span>
           </div>
         ))}
       </div>

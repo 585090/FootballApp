@@ -2,13 +2,16 @@
 
 .GroupPage-container {
     display: flex;
-    justify-content: center;
     align-items: center;
-    flex-direction: column;
+    justify-content: center;
+    width: 100%;
 }
 
 .GroupPage-title {
-    color: var(--text-color)
+    width: 100%;
+    text-align: center;
+    margin: 1rem auto;
+    color: var(--text-color);
 }
 
 .GroupPageAddPlayer-button {

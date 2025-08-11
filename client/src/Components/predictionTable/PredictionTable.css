@@ -88,4 +88,9 @@ img {
     .DragIcon {
       font-size: 0.7rem;
     }
+
+    .TeamPrevRank {
+      display: none;
+    }
+
   }

@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import './Group.css'
 import '../assets/PopupForm.css';
 import { CreateGroup } from '../Components/CreateGroup';
+import PredictionTable from '../Components/predictionTable/PredictionTable';
 
 export default function GroupPage() {
   
@@ -68,8 +69,8 @@ export default function GroupPage() {
       <NavigationBar />
         <h1 className='GroupPage-title'>{group?.groupName || 'Loading...'}</h1>
         <div className='GroupPage-container'>
-          <Scoreboard players={ group.members || []} />
-          <button className='GroupPageAddPlayer-button' onClick={togglePopup}>Add player</button>
+            <Scoreboard players={ group.members || []} />
+            <button className='GroupPageAddPlayer-button' onClick={togglePopup}>Add player</button>
         </div>
         {isPopupOpen && (
             <div className="popup-overlay" onClick={togglePopup}>

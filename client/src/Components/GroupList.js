@@ -27,7 +27,7 @@ export const GroupList = () => {
     return (
         <div>
         <div className='GroupList-container'>
-            <h1 className='GroupList-title'>Groups</h1>
+            <h1 className='GroupList-title'>Your groups</h1>
             <div className='GroupList-header'>
             <span className='Group-name'>Group</span>
             <span className='Group-tournament'>Tournament</span>

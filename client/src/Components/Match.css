@@ -5,8 +5,8 @@
   flex-direction: column; /* Stack .Match-main and .MatchStatus vertically */
   align-items: center;
   justify-content: center;
-  background-color: var(--primary-color);
-  border-radius: 1.2rem;
+  border-top: 0.2rem solid var(--primary-color);
+  border-bottom: 0.2rem solid var(--primary-color);
   max-width: 55rem;
   margin: 1rem auto;
   max-width: 55rem;
@@ -27,10 +27,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--text-secondary-color);
+  color: var(--text-color);
   font-size: 1.2rem;
   font-weight: bold;
-  border-right: 2px solid var(--border-color);
+  border-right: 2px solid var(--primary-color);
 }
 
 .HomeTeam,
@@ -41,7 +41,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary-color);;
+  color: var(--text-color);
   word-break: break-word;
   white-space: normal;
 }
@@ -63,7 +63,7 @@
   align-items: center;
   font-size: 1.5rem;
   font-weight: bold;
-  color: var(--text-secondary-color);
+  color: var(--text-color);
 }
 
 .Predictions {
@@ -71,9 +71,10 @@
   height: 3rem;
   font-size: 1.2rem;
   text-align: center;
-  border: none;
-  background-color: var(--background-color);
-  border-radius: 5px;
+  border: 0.1rem solid black;
+  border-radius: 0.1rem;
+  color: var(--text-secondary-color);
+  background-color: var(--primary-color);
   margin: 2rem;
 }
 
@@ -90,21 +91,9 @@
   white-space: normal;
 }
 
-.FlagContainer {
-  width: 4rem;
-  height: 3rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0.2rem 0.2rem 0.2rem black;
-  margin: 0.75rem;
-}
-
-.Flags {
-  font-size: 4rem;
-  height: auto; 
-  aspect-ratio: 4 / 3;
-  object-fit: contain;
+img {
+  max-width: 2rem;
+  margin: 1rem;
 }
 
 .Prediction-Container {
@@ -147,7 +136,7 @@
 
 @media (max-width: 600px) {
   .Match-container {
-    width: 95%;
+    width: 100%;
     height: 7rem;
     padding: 0;
   }
@@ -157,28 +146,18 @@
     flex: 0 0 3rem;
   }
 
-  .TeamText {
-    display: none;
-  }
-
   .Predictions {
-    width: 1.5rem;
+    width: 1rem;
     height: 1.5rem;
-    margin: 0.5rem;
-  }
-
-  .FlagContainer {
-    width: 2.5rem;
-    height: 1.15rem;
-    box-shadow: 0.1rem 0.4rem 0.5rem 0.15rem rgb(61, 59, 59);
+    margin: 0;
   }
 
   .Flags {
     font-size: 2.5rem;
   }
   .vs {
-    padding: 0.25rem;
-    font-size: 1rem;
+    margin: 0.5rem;
+    font-size: 0.7rem;
   }
 
   .Prediction-button {
@@ -191,4 +170,13 @@
   .MatchStatus {
     font-size: 1rem;
   }
+
+  .TeamText {
+    font-size: 0.7rem;
+  }
+
+  img {
+    margin: 0.5rem;
+  }
+
 }

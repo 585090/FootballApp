@@ -37,11 +37,6 @@ export function MatchList() {
     return matches.slice().sort((a, b) => new Date(a.kickoff) - new Date(b.kickoff));
   }
 
-  function formatTime(kickoff) {
-    const d = new Date(kickoff);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-  }
-
   return (
     <div>
       <NavigationBar />

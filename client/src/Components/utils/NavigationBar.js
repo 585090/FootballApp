@@ -32,7 +32,7 @@ export const NavigationBar = () => {
             <br /> 
             Home 
           </Link>
-          <Link to="/matches" className='Links'>
+          <Link to="/matchday" className='Links'>
             <SoccerBallIcon size={32} />
             <br />
             Matches

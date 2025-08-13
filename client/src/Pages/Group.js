@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Scoreboard from '../Components/Scoreboard';
 import { NavigationBar } from '../Components/utils/NavigationBar';
 import { useParams } from 'react-router-dom';
+import { gamemodeRoutes } from '../assets/GamemodeRoutes';
 import './Group.css'
 import '../assets/PopupForm.css';
 import { Link } from 'react-router-dom';
@@ -43,7 +44,6 @@ export default function GroupPage() {
     const data = await response.json();
 
     if (!response.ok) {
-      // Handle known error from server
       setErrorMessage(data.error || 'Failed to add player');
       return;
     }
@@ -61,6 +61,11 @@ export default function GroupPage() {
     console.error('Error adding player:', error);
     alert('Something went wrong. Please try again.');
     }
+  };
+
+  const gamemode = gamemodeRoutes[group.gamemode] || {
+      path: "/unknownMode",
+      label: "Unknown gamemode",
   };
 
     return (
@@ -92,8 +97,8 @@ export default function GroupPage() {
             </div>
             </div>
         )}
-        <div>
-          <Link to='/matchday'>Predict scores</Link>
+        <div className='GroupButtons-container' > 
+          <Link className='PredictionPath-link' to={gamemode.path}>{gamemode.label}</Link>
         </div>
     </div>
     )

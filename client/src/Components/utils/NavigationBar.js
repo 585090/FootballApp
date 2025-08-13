@@ -16,7 +16,7 @@ export const NavigationBar = () => {
             </Link>
           )
           : (
-            <Link to="/auth" className="Links">Login</Link>
+            <Link to="/auth" className="SignOutButton">Login</Link>
           )
         }
       </div>
@@ -31,7 +31,7 @@ export const NavigationBar = () => {
             <br />
             Matches
           </Link>
-          <Link to="/group" className='Links'> 
+          <Link to="/groupList" className='Links'> 
             <UsersThreeIcon size={32} />
             <br />
             Groups

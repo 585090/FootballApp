@@ -26,30 +26,30 @@ export const GroupList = () => {
 
     return (
         <div>
-        <div className='GroupList-container'>
-            <h1 className='GroupList-title'>Your groups</h1>
-            <div className='GroupList-header'>
-            <span className='Group-name'>Group</span>
-            <span className='Group-tournament'>Tournament</span>
-            <span className='Group-points'>Points</span>
+            <div className='GroupList-container'>
+                <h1 className='GroupList-title'>Your groups</h1>
+                <div className='GroupList-header'>
+                <span className='Group-name'>Group</span>
+                <span className='Group-tournament'>Tournament</span>
+                <span className='Group-points'>Points</span>
+                </div>
+                {groups.map((group) => (
+                <Link to={`/group/${encodeURIComponent(group.id)}`} key={group.id} className='Group'>
+                    <div className='Group-name'>{group.name}</div>
+                    <div className='Group-tournament'>{group.tournament}</div>
+                    <div className='Group-points'>0</div>
+                </Link>
+                ))}
+                <button className='CreateGroup-button' onClick={togglePopup}>Create group</button>
             </div>
-            {groups.map((group) => (
-            <Link to={`/group/${encodeURIComponent(group.id)}`} key={group.id} className='Group'>
-                <div className='Group-name'>{group.name}</div>
-                <div className='Group-tournament'>{group.tournament}</div>
-                <div className='Group-points'>0</div>
-            </Link>
-            ))}
-            <button className='CreateGroup-button' onClick={togglePopup}>Create group</button>
-        </div>
 
-        {isPopupOpen && (
-            <div className="popup-overlay" onClick={togglePopup}>
-            <div className="popup-content" onClick={e => e.stopPropagation()}>
-                <CreateGroup togglePopup={togglePopup} />
-            </div>
-            </div>
-        )}
+            {isPopupOpen && (
+                <div className="popup-overlay" onClick={togglePopup}>
+                <div className="popup-content" onClick={e => e.stopPropagation()}>
+                    <CreateGroup togglePopup={togglePopup} />
+                </div>
+                </div>
+            )}
         </div>
     );
 };

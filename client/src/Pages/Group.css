@@ -20,3 +20,22 @@
     padding: 1rem;
     margin: 1rem;
 }
+
+.GroupButtons-container {
+    display: flex;
+    margin: auto;
+    justify-content: center;
+    text-align: center;
+}
+
+.PredictionPath-link {
+    display: flex;                  /* make link a flex container */
+    justify-content: center;        /* horizontal centering */
+    align-items: center;            /* vertical centering */
+    width: 50%;
+    height: 2rem;
+    margin: 1rem;
+    color: var(--text-color);
+    text-decoration: none;
+    background-color: var(--button-color);
+}

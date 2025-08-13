@@ -50,10 +50,12 @@ exports.getGroupById = async (req, res) => {
         .project({ name: 1, email: 1, points: 1, _id: 0 })
         .toArray();
 
+    console.log("gamemodeId from backend:", group.gamemode);
     res.json({
       groupName: group.groupName,
       tournament: group.tournament,
       owner: group.owner,
+      gamemode: group.gamemode,
       members: members
     });
 
@@ -64,13 +66,13 @@ exports.getGroupById = async (req, res) => {
 }
 
 exports.createGroup = async (req, res) => {
-    const { groupName, tournament, gamemodeId, email } = req.body;
+    const { groupName, tournament, gamemode, email } = req.body;
     
     if (!groupName || !tournament) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const existingGroup = await getDb().collection('players').findOne({ groupName });
+    const existingGroup = await getDb().collection('groups').findOne({ groupName });
     if (existingGroup) {
       return res.status(409).json({ error: 'Group already exists' });
     }
@@ -78,7 +80,7 @@ exports.createGroup = async (req, res) => {
     const newGroup = {
         groupName,
         tournament,
-        gamemodeId,
+        gamemode,
         owner: email
     };
 
@@ -98,7 +100,7 @@ exports.createGroup = async (req, res) => {
           id: result.insertedId,
           name: newGroup.groupName,
           tournament: newGroup.tournament,
-          gamemode: newGroup.gamemodeId,
+          gamemode: Number(newGroup.gamemode),
           owner: newGroup.owner
     }}); 
 

@@ -16,7 +16,7 @@ export const NavigationBar = () => {
             </Link>
           )
           : (
-            <Link to="/auth" className="Links">Login</Link>
+            <Link to="/auth" className="SignOutButton">Login</Link>
           )
         }
       </div>

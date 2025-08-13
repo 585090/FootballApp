@@ -10,6 +10,7 @@ import Dashboard from './Pages/Dashboard';
 import GroupPage from './Pages/Group';
 import Account from './Pages/Account';
 import './App.css';
+import GroupsPage from './Pages/GroupsPage';
 
 function App() {
   return (
@@ -26,6 +27,9 @@ function App() {
         <Route 
           path="/group/:groupId" 
           element={<ProtectedRoute> <GroupPage /> </ProtectedRoute>} />
+          <Route 
+            path="/groupList/" 
+            element={<ProtectedRoute> <GroupsPage /> </ProtectedRoute>} />
         <Route 
           path="/dashboard" 
           element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />

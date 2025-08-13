@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { gamemodeRoutes } from '../assets/GamemodeRoutes';
 import './GroupList.css';
 import '../assets/PopupForm.css';
 import { useNavigate } from 'react-router-dom';
@@ -11,16 +12,16 @@ export const CreateGroup = ({ togglePopup }) => {
         { id: "4", name: "Premier League" }
     ]);
 
-    const [gamemodes] = useState([
-        { id: "1", name: "Predict table" },
-        { id: "2", name: "Predict scores" }
-    ]);
-
+    const gamemodes = Object.entries(gamemodeRoutes).map(([id, config]) => ({
+        id,
+        name: config.label
+    }));  
 
     const [Groupform, setGroupform] = useState({ groupName: '', tournament: '', gamemode: '' });
 
     const handleChange = (e) => {
         setGroupform({ ...Groupform, [e.target.name]: e.target.value });
+        console.log(e.target.name, e.target.value)
     };
 
     const navigate = useNavigate();
@@ -35,12 +36,11 @@ export const CreateGroup = ({ togglePopup }) => {
         const bodyData = {
             groupName: Groupform.groupName.trim(),
             tournament: Groupform.tournament,
-            gamemode: Groupform.gamemode.id,
+            gamemode: Groupform.gamemode,
             email
         };
         
-        console.log(bodyData)
-
+        console.log("Sending to backend:", JSON.stringify(bodyData, null, 2));
         const response = await fetch('http://localhost:5000/api/groups/createGroup', {
         method: 'POST',
         headers: { 'Content-type': 'application/json' },
@@ -94,7 +94,7 @@ export const CreateGroup = ({ togglePopup }) => {
                 >
                 <option value="">-- Select gamemode --</option>
                 {gamemodes.map((game) => (
-                    <option key={game.id} value={game.name}>
+                    <option key={game.id} value={game.id}>
                     {game.name}
                     </option>
                 ))}

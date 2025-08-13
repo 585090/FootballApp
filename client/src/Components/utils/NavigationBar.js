@@ -31,7 +31,7 @@ export const NavigationBar = () => {
             <br />
             Matches
           </Link>
-          <Link to="/group" className='Links'> 
+          <Link to="/groupList" className='Links'> 
             <UsersThreeIcon size={32} />
             <br />
             Groups

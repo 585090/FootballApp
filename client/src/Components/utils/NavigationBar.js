@@ -1,23 +1,17 @@
 import './NavigationBar.css';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { SoccerBallIcon, HouseIcon, UsersThreeIcon, UserIcon } from '@phosphor-icons/react';
 
 
 export const NavigationBar = () => {
-  const navigate = useNavigate();
   const player = JSON.parse(localStorage.getItem('player'));
-
-  const handleSignOut = () => {
-    localStorage.removeItem('player');
-    navigate('/auth')
-  }
 
   return (
     <div className="Navigation-bar">
       <div className='header-NavBar'>
         <Link to="/" className='Logo'>Footy Guru</Link>
         {player ? (
-            <Link className="SignOutButton" to="/dashboard"> 
+            <Link className="SignOutButton" to="/account"> 
               <UserIcon size={32} /> 
             </Link>
           )

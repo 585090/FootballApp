@@ -1,10 +1,11 @@
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Match } from '../Components/Match';
-import Scoreboard from '../Components/Scoreboard';
 import { NavigationBar } from '../Components/utils/NavigationBar';
 import { GroupList } from '../Components/GroupList';
 import PredictionTable from '../Components/predictionTable/PredictionTable';
 import './Dashboard.css';
-import React, { useState, useEffect } from 'react';
+
 
 export default function Dashboard() {
     const [players, setPlayers] = useState([]);
@@ -31,7 +32,7 @@ export default function Dashboard() {
         const today = new Date().toISOString().split('T')[0];
 
         try {
-            const response = await fetch(`http://localhost:5000/api/matches?date=${today}`);
+            const response = await fetch(`http://localhost:5000/api/matches/by-date?date=${today}`);
             const data = await response.json();
 
             // Optional: Sort here if you want to store sorted version
@@ -47,18 +48,27 @@ export default function Dashboard() {
     return (
         <div>
             <NavigationBar />
-            <h1 className='Dashboard-title'> Dashboard </h1>
             <div className='Dashboard-Container'>
+                <div className='extraButtons-container'>
+                    <button className='extraButton' >Button 1</button>
+                    <button className='extraButton' >Button 1</button>
+                    <button className='extraButton' >Button 1</button>
+                </div>
                 <div  className='Match-Container'>
                     <h2>Todays matches</h2>
-                    {matches.map(match => (
-                    <Match className="Matches" 
-                        HT={match.teamA} 
-                        AT={match.teamB} 
-                        KickOff={"match.kickoff"}
-                        score={match.score}
-                        showInfo={false}/>)
+                    {matches.length > 0 ? (
+                        matches.slice(0,3).map(match => (
+                        <Match className="Matches" 
+                            HT={match.teamA} 
+                            AT={match.teamB} 
+                            KickOff={"match.kickoff"}
+                            score={match.score}
+                            showInfo={false}/>)
+                        )
+                    ) : (
+                        <p> No matches today </p>
                     )}
+                    <Link className='Matchday-link' to='/matchday'> more matches </Link>
                 </div>
                 <div className='Group-Container'>
                     <GroupList />

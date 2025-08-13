@@ -26,11 +26,12 @@ export function Matchday() {
     const [currentMatchweek, setcurrentMatchweek] = useState(1);
     const [matches, setMatches] = useState([]);
     const [teams, setTeams] = useState([]);
+    const [competition, setCompetition] = useState('PL')
 
     useEffect(() => {
         const getTeams = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/teams/PL`)
+                const response = await fetch(`http://localhost:5000/api/teams/${competition}`)
                 const data = await response.json()
                 setTeams(data)
             } catch (error) {
@@ -77,28 +78,29 @@ export function Matchday() {
   return (
     <div>
       <NavigationBar />
-      <MatchweekSwitcher onMatchweekChange={setcurrentMatchweek} />
-
-      {Object.entries(groupedMatches).map(([day, dayMatches]) => (
-        <div key={day} >
-            <div className="matchDay-title" >
-                <h2>{ day } </h2>
-            </div>
-          {dayMatches.map((match) => (
-            <Match
-              key={match.matchId}
-              matchid={match.matchId}
-              HT={match.homeTeam}
-              AT={match.awayTeam}
-              KickOff={match.kickoffDateTime}
-              score={match.score}
-              status={match.status}
-              homeCrest={getTeamCrest(match.homeTeam)}
-              awayCrest={getTeamCrest(match.awayTeam)}
-            />
-          ))}
-        </div>
-      ))}
+      <div className="Matchday-container">
+        <MatchweekSwitcher onMatchweekChange={setcurrentMatchweek} />
+        {Object.entries(groupedMatches).map(([day, dayMatches]) => (
+          <div key={day} >
+              <div className="matchDay-title" >
+                  <h2>{ day } </h2>
+              </div>
+            {dayMatches.map((match) => (
+              <Match
+                key={match.matchId}
+                matchid={match.matchId}
+                HT={match.homeTeam}
+                AT={match.awayTeam}
+                KickOff={match.kickoffDateTime}
+                score={match.score}
+                status={match.status}
+                homeCrest={getTeamCrest(match.homeTeam)}
+                awayCrest={getTeamCrest(match.awayTeam)}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

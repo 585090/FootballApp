@@ -1,9 +1,10 @@
 @import '../assets/themes.css';
 
 .Dashboard-Container {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
     align-items: center;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
     width: 100%;
     }
 
@@ -14,21 +15,39 @@
     color: var(--text-color);
 }
 
-.Group-Container {
+.extraButtons-container {
     display: flex;
-    justify-content: center;
-    margin-right: 2rem;
+    flex-direction: column;
+    align-items: center;
+    max-width: 30rem;
+    border: 0.2rem solid var(--primary-color);
+    border-radius: 1rem;
+}
+
+.extraButton {
+    width: 50%;
+    height: 3rem;
+    margin: 1rem;
 }
 
 .Match-Container {
-    width: 30rem;
-    display: inline-block;
-    font-size: 2rem;
+    max-width: 30rem;
+    font-size: 1rem;
     text-align: center;
+    border: 0.2rem solid var(--primary-color);
+    border-radius: 1rem;
 }
 
-.PredictionTable {
-    border: 2px solid aqua;
+.Matchday-link {
+    display: inline-block;
+    color: var(--text-color);
+    margin: 1rem;
+}
+
+.Group-Container {
+    display: flex;
+    grid-column: 1 / -1;
+    justify-content: center;
 }
 
 @media (max-width: 600px) {
@@ -36,12 +55,12 @@
         width: 100%;
     }
 
-    .Group-Container {
-        margin-right: 1rem;
-    }
+    .extraButtons-container {
+        width: 90%;
+    } 
 
     .Match-Container {
-        font-size: 0.6rem;
-        width: 45%;
+        font-size: 0.8rem;
+        width: 90%;
     }
 }

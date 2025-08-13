@@ -1,4 +1,4 @@
-const PointLogic = (predictedIndex, trueIndex, points) => {
+export const PointLogic = (predictedIndex, trueIndex, points) => {
     
     const difference = Math.abs(predictedIndex - trueIndex)
 
@@ -7,5 +7,3 @@ const PointLogic = (predictedIndex, trueIndex, points) => {
     else if (difference === 2) return points += 1;
     else return points += 0;
 }
-
-export default PointLogic;

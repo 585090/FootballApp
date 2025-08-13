@@ -40,7 +40,7 @@ export const GroupList = () => {
                 <div className='Group-points'>0</div>
             </Link>
             ))}
-            <button className='CreateGroup-button' onClick={togglePopup}>Create Group</button>
+            <button className='CreateGroup-button' onClick={togglePopup}>Create group</button>
         </div>
 
         {isPopupOpen && (

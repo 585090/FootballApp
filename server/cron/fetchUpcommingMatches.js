@@ -55,7 +55,7 @@ async function fetchAndStoreMatchesForDate(dateStr) {
 }
 
 // Schedule: every night at 2:00 AM
-cron.schedule('0 2 * * *', async () => {
+cron.schedule('0 12 * * 0', async () => {
   console.log('🔁 Running daily match fetch...');
 
   for (let i = 0; i <= 7; i++) {

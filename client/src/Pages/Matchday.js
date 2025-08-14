@@ -1,7 +1,9 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavigationBar } from "../Components/utils/NavigationBar";
 import {MatchweekSwitcher } from "../Components/utils/MatchweekSwitcher";
 import { Match } from "../Components/Match";
+import { getMatches } from "../services/APICalls";
+
 import "./Matchday.css"
 
 function groupMatchesByDay(matches) {
@@ -22,12 +24,15 @@ function groupMatchesByDay(matches) {
     }, {});
 }
 
+
 export function Matchday() {
     const [currentMatchweek, setcurrentMatchweek] = useState(1);
     const [matches, setMatches] = useState([]);
     const [teams, setTeams] = useState([]);
+    const [predictions, setPredictions] = useState([]);
     const [competition, setCompetition] = useState('PL')
 
+    // Fetch teams
     useEffect(() => {
         const getTeams = async () => {
             try {
@@ -39,33 +44,25 @@ export function Matchday() {
             }
         }
         getTeams();
-    }, [])
+    }, [competition])
 
-
+  //Fetch matches
   useEffect(() => {
-    const getMatches = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/api/matches/by-matchweek/?matchweek=${currentMatchweek}`);
-        const data = await response.json();
-
-        if (!response.ok) {
-          console.log('Error', data.error);
-          return;
-        }
-
+    const fetchMatches = async () => {
+      const data = await getMatches(currentMatchweek);
+      if (Array.isArray(data)) {
         setMatches(sortMatchesByKickOff(data));
-      } catch (error) {
-        console.error("Error getting matches", error);
       }
-    };
-    getMatches();
+      else {
+        setMatches([]);
+      }
+    }
+    fetchMatches();
   }, [currentMatchweek]);
 
     function getTeamCrest(teamName) {
         if (!teams || teams.length === 0) return "";
         const team = teams.find(t => t.teamName === teamName);
-        console.log("Looking for:", teamName);
-        console.log("Available teams:", teams.map(t => t.teamName));
         return team ? team.logo : "";
     }
 
@@ -84,6 +81,7 @@ export function Matchday() {
           <div key={day} >
               <div className="matchDay-title" >
                   <h2>{ day } </h2>
+                  {predictions}
               </div>
             {dayMatches.map((match) => (
               <Match

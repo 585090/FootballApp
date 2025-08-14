@@ -102,12 +102,12 @@ exports.loginPlayer = async (req, res) => {
 
 
 exports.updatePlayerScore = async (req, res) => {
-    const { name, score } = req.body;
+    const { email, points } = req.body;
 
     try {
         const playerScore = await getDb().collection('players').updateOne(
-            { name },                      
-            { $set: { score } }            
+            { email },                      
+            { $inc: { score: points } }            
         );
 
         if (playerScore.modifiedCount > 0) {

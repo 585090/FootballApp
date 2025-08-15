@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "3244",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -52,5 +52,25 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/585090/FootballApp.git"
+  },
+  "keywords": [
+    "Football",
+    "prediction",
+    "app"
+  ],
+  "author": "Simen Hesthamar Hauge",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/585090/FootballApp/issues"
+  },
+  "homepage": "https://github.com/585090/FootballApp#readme"
 }

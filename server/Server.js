@@ -25,8 +25,15 @@ app.use('/api/matches', matchRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/teams', teamRoutes);
 
-// --- Serve React static files ---
-app.use(express.static(path.join(__dirname, '../client/build')));
+// --- Serve React static files in production ---
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
+
+  // Serve React app for any other route
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  });
+}
 
 // --- Connect to MongoDB and start server ---
 connectToMongo().then(() => {

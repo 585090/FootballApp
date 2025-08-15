@@ -2,7 +2,7 @@
   "name": "my-project",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix client\""
+    "start": "node server/server.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

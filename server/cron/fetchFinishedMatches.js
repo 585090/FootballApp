@@ -1,10 +1,7 @@
 const cron = require('node-cron');
 const { getDb } = require('../db'); // your DB connection
 const { matchPointLogic } = require('../utils/calculatePoints')
-const { updatePlayerScore } = require('../controllers/playerController');
-
-const API_URL = competition => `https://api.football-data.org/v4/competitions/${competition}/matches`;
-const API_TOKEN = process.env.FOOTBALL_API_TOKEN;
+const { updatePlayerScore } = require('../controllers/PlayerController');
 
 cron.schedule('* 0 * * *', async () => { // every 5 minutes
     try {

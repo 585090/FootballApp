@@ -37,12 +37,10 @@
 .AwayTeam {
   width: 24rem;
   font-size: 1.3rem;
-  font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-color);
-  word-break: break-word;
   white-space: normal;
 }
 
@@ -79,12 +77,12 @@
 .FinalScore {
   width: 3rem;
   height: 3rem;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-secondary-color);;
+  color: var(--text-color);;
   word-break: break-word;
   white-space: normal;
 }
@@ -101,9 +99,9 @@ img {
   width: 7rem;
 }
 
-.Prediction-button {
-  width: 5rem;
-  height: 5rem;
+.Predict-button {
+  width: 2rem;
+  height: 2rem;
   text-align: center;
   background: var(--background-color);
   border: 0.2rem solid black;
@@ -158,7 +156,7 @@ img {
     font-size: 0.7rem;
   }
 
-  .Prediction-button {
+  .Predict-button {
     width: 3rem;
     height: 3rem;
     font-size: 0.6rem;

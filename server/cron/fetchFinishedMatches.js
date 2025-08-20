@@ -3,7 +3,7 @@ const { getDb } = require('../db'); // your DB connection
 const { matchPointLogic } = require('../utils/calculatePoints')
 const { updatePlayerScore } = require('../controllers/PlayerController');
 
-cron.schedule('* 0 * * *', async () => { // every 5 minutes
+cron.schedule('1 * * * *', async () => { // every 5 minutes
     try {
         const response = await fetch('https://api.football-data.org/v4/competitions/PL/matches', {
             headers: {

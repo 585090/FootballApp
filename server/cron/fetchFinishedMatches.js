@@ -6,7 +6,7 @@ const { updatePlayerScore } = require('../controllers/playerController');
 const API_URL = competition => `https://api.football-data.org/v4/competitions/${competition}/matches`;
 const API_TOKEN = process.env.FOOTBALL_API_TOKEN;
 
-cron.schedule('* 0 * * *', async () => { // every 5 minutes
+cron.schedule('1 * * * *', async () => { // every 5 minutes
     try {
         const response = await fetch('https://api.football-data.org/v4/competitions/PL/matches', {
             headers: {

@@ -1,10 +1,11 @@
 services:
-  fullstack-app:
+  web:
     build: .
-    container_name: fullstack-app
     ports:
-      - "5000:5000"   # Server + React served on the same port
+      - "80:8080"
+    env_file:
+      - ./server/.env
     environment:
       - NODE_ENV=production
-      - MONGO_URI=mongodb://<your-mongo-host>:27017/<db-name>
+      - PORT=8080
     restart: unless-stopped

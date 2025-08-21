@@ -13,7 +13,7 @@ export const GroupList = () => {
         const loggedInPlayer = JSON.parse(localStorage.getItem('player'));
         const playerEmail = loggedInPlayer?.email;
         
-        fetch(`http://localhost:5000/api/groups/player/${playerEmail}`)
+        fetch(`https://footballapp-u80w.onrender.com//api/groups/player/${playerEmail}`)
         .then(response => response.json())
         .then(data => {
             if (Array.isArray(data)) {

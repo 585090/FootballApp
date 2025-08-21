@@ -41,7 +41,7 @@ export const CreateGroup = ({ togglePopup }) => {
         };
         
         console.log("Sending to backend:", JSON.stringify(bodyData, null, 2));
-        const response = await fetch('http://localhost:5000/api/groups/createGroup', {
+        const response = await fetch('https://footballapp-u80w.onrender.com//api/groups/createGroup', {
         method: 'POST',
         headers: { 'Content-type': 'application/json' },
         body: JSON.stringify(bodyData),

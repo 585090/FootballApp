@@ -9,15 +9,20 @@ const matchRoutes = require('./routes/Matches');
 const groupRoutes = require('./routes/Groups');
 const teamRoutes = require('./routes/Teams');
 
+const PORT = process.env.PORT || 5000;
+const MONGODB_URI = process.env.MONGODB_URI;
+
+const defaultOrigins = ['http://localhost:3000'];
+const origins = [...new Set([...defaultOrigins, ...allowedOrigins])];
+
+
 const app = express()
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(MONGODB_URI, {
   serverSelectionTimeoutMS: 10000,
   connectTimeoutMS: 10000,
   family: 4,                 // prefer IPv4
   dbName: 'FootyGuru',       // or put /FootyGuru in the URI
 });
-
-const PORT = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
@@ -29,14 +34,31 @@ app.use('/api/matches', matchRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/teams', teamRoutes);
 
-(async () => {
+// ---------- Mongo connect & start ----------
+(async function start() {
   try {
-    await connectToMongo();
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 API ready on http://localhost:${PORT}`);
+    if (!MONGODB_URI) {
+      throw new Error('MONGODB_URI is not set');
+    }
+
+    await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      family: 4,            // prefer IPv4 to avoid IPv6 egress issues
+      dbName: 'FootyGuru',  // keep or remove if db is in URI path
     });
-  } catch (e) {
-    console.error('❌ Mongo connect failed:', e.message);
+
+    console.log('✅ Mongo connected');
+
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 API listening on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Startup failed:', err.message);
     process.exit(1);
   }
 })();
+
+// Graceful shutdown (optional but good practice)
+process.on('SIGTERM', () => mongoose.connection.close(() => process.exit(0)));
+process.on('SIGINT',  () => mongoose.connection.close(() => process.exit(0)));

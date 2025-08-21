@@ -11,7 +11,7 @@ export default function Dashboard() {
 
     //Get players
     useEffect(() => {
-    fetch('http://localhost:5000/api/players')
+    fetch('https://footballapp-u80w.onrender.com//api/players')
         .then(response => response.json())
         .then(data => {
         const sortedPlayers = data.sort((a,b) => b.score - a.score);
@@ -31,7 +31,7 @@ export default function Dashboard() {
         const today = new Date().toISOString().split('T')[0];
 
         try {
-            const response = await fetch(`http://localhost:5000/api/matches/by-date?date=${today}`);
+            const response = await fetch(`https://footballapp-u80w.onrender.com//api/matches/by-date?date=${today}`);
             const data = await response.json();
 
             // Optional: Sort here if you want to store sorted version

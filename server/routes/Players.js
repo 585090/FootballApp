@@ -7,7 +7,6 @@ router.get('/:id', controller.getPlayersByGroup);
 router.post('/signup', controller.createPlayer);
 router.post('/login', controller.loginPlayer)
 router.put('/score', controller.updatePlayerScore);
-//router.put('/:id/group', controller.updatePlayerGroups);
 router.delete('/:id', controller.deletePlayer);
 
 module.exports = router;

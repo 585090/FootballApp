@@ -17,7 +17,7 @@ export default function GroupPage() {
   const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/groups/${groupId}`)
+    fetch(`https://footballapp-u80w.onrender.com//api/groups/${groupId}`)
         .then(response => response.json())
         .then(data => {
         setGroup(data)
@@ -36,7 +36,7 @@ export default function GroupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-    const response = await fetch(`http://localhost:5000/api/groups/${groupId}/addPlayer`, {
+    const response = await fetch(`https://footballapp-u80w.onrender.com//api/groups/${groupId}/addPlayer`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: addPlayer })
@@ -53,7 +53,7 @@ export default function GroupPage() {
     setAddPlayer('');
 
     // Refresh group
-    const groupRes = await fetch(`http://localhost:5000/api/groups/${groupId}`);
+    const groupRes = await fetch(`https://footballapp-u80w.onrender.com//api/groups/${groupId}`);
     const updatedGroup = await groupRes.json();
     setGroup(updatedGroup);
 

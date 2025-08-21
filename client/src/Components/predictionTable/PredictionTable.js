@@ -20,7 +20,7 @@ const PredictionTable = ( {competition} ) => {
       })) 
 
       const player = JSON.parse(localStorage.getItem('player'));
-      const response = await fetch(`http://localhost:5000/api/prediction/predictTable`, {
+      const response = await fetch(`https://footballapp-u80w.onrender.com//api/prediction/predictTable`, {
         method: 'post',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -45,12 +45,12 @@ const PredictionTable = ( {competition} ) => {
         const player = JSON.parse(localStorage.getItem('player'));
 
         // Fetch all teams
-        const teamsRes = await fetch(`http://localhost:5000/api/teams/${competition}`);
+        const teamsRes = await fetch(`https://footballapp-u80w.onrender.com//api/teams/${competition}`);
         const teams = await teamsRes.json();
 
         // Fetch saved prediction
         const predictionRes = await fetch(
-          `http://localhost:5000/api/prediction/predictTable?email=${player.email}&competition=${competition}&season=2026`
+          `https://footballapp-u80w.onrender.com//api/prediction/predictTable?email=${player.email}&competition=${competition}&season=2026`
         );
 
         if (predictionRes.ok) {

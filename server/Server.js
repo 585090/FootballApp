@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose')
 const cors = require('cors');
-const { connectToMongo } = require('./db');
 const playersRoutes = require('./routes/Players');
 const predictionRoutes = require('./routes/Predictions');
 const matchRoutes = require('./routes/Matches');
@@ -26,6 +25,24 @@ mongoose.connect(MONGODB_URI, {
 
 app.use(cors());
 app.use(express.json());
+
+const corsOptions = {
+  origin(origin, cb) {
+    // allow non-browser requests (no Origin) and known origins
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    return cb(new Error(`CORS blocked for origin: ${origin}`));
+  },
+  credentials: true, // set to true only if you use cookies/Authorization header and need it
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// MUST come before your routes:
+app.use(cors(corsOptions));
+
+// Make sure preflight OPTIONS are handled
+app.options('*', cors(corsOptions));
+
 
 // API routes
 app.use('/api/players', playersRoutes);

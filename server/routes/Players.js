@@ -11,3 +11,6 @@ router.put('/score', controller.updatePlayerScore);
 router.delete('/:id', controller.deletePlayer);
 
 module.exports = router;
+
+https://footballapp-u80w.onrender.comapi/players/login
+https://footballapp-u80w.onrender.com/api/players/login

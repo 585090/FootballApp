@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AuthPage.css'
 import { NavigationBar } from './NavigationBar';
-import { Footer } from '../utils/Footer'
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -78,7 +77,6 @@ const AuthPage = () => {
           {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Log In'}
         </button>
       </div>
-      <Footer />
     </div>
   );
 };

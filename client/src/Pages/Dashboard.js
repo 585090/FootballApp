@@ -3,9 +3,7 @@ import { Link } from 'react-router-dom';
 import { Match } from '../Components/Match';
 import { NavigationBar } from '../Components/utils/NavigationBar';
 import { GroupList } from '../Components/GroupList';
-import PredictionTable from '../Components/predictionTable/PredictionTable';
 import './Dashboard.css';
-
 
 export default function Dashboard() {
     const [players, setPlayers] = useState([]);
@@ -18,9 +16,10 @@ export default function Dashboard() {
         .then(data => {
         const sortedPlayers = data.sort((a,b) => b.score - a.score);
         setPlayers(sortedPlayers);
+        console.log(players)
         })
         .catch(error => console.error('Error fetching players:', error));
-    }, [])
+    }, [players])
 
     //Get todays matches
     function sortMatchesByKickOff(matches) {

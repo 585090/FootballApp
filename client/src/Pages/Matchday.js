@@ -29,8 +29,8 @@ export function Matchday() {
     const [currentMatchweek, setcurrentMatchweek] = useState(1);
     const [matches, setMatches] = useState([]);
     const [teams, setTeams] = useState([]);
-    const [predictions, setPredictions] = useState([]);
-    const [competition, setCompetition] = useState('PL')
+    const [predictions ] = useState([]);
+    const [competition] = useState('PL')
 
     // Fetch teams
     useEffect(() => {

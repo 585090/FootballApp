@@ -14,32 +14,29 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// Allowed origins: env-driven + localhost
-const envOrigins = (process.env.CORS_ORIGINS || '')
-  .split(',')
-  .map(s => s.trim())
-  .filter(Boolean);
-const allowedOrigins = Array.from(new Set(['http://localhost:3000', ...envOrigins]));
+// ---- Explicit CORS (handles preflight reliably) ----
+const allowed = new Set([
+  'http://localhost:3000',
+  'https://footyguru.netlify.app',   // add more origins if you use custom domains
+  // 'https://your-custom-domain.com',
+]);
 
-app.set('trust proxy', true);
-app.use(express.json({ limit: '5mb' }));
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-// ---- CORS (no explicit app.options('*') needed) ----
-const corsOptions = {
-  origin(origin, cb) {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error(`CORS blocked for origin: ${origin}`));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 204,
-};
-app.use(cors(corsOptions));
+  if (origin && allowed.has(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Vary', 'Origin'); // good practice when echoing origin
+    res.header('Access-Control-Allow-Credentials', 'true'); // only needed if you use cookies/Authorization
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
 
-// Health / root
-app.get('/healthz', (req, res) => res.status(200).send('ok'));
-app.get('/', (req, res) => res.json({ status: 'ok' }));
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 // Routes
 app.use('/api/players', playersRoutes);

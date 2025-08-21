@@ -2,7 +2,7 @@ import { matchPointLogic } from "./PointLogic";
 
 export const getMatches = async (matchweek) => {
     try {
-        const response = await fetch(`https://footballapp-u80w.onrender.com//api/matches/by-matchweek/?matchweek=${matchweek}`);
+        const response = await fetch(`https://footballapp-u80w.onrender.com/api/matches/by-matchweek/?matchweek=${matchweek}`);
         const data = await response.json();
 
         if (!response.ok) {
@@ -18,7 +18,7 @@ export const getMatches = async (matchweek) => {
 
 export const getPredictions = async (email, matchid) => {
     try {
-    const response = await fetch(`https://footballapp-u80w.onrender.com//api/predictions/?email=${email}&matchid=${matchid}`)
+    const response = await fetch(`https://footballapp-u80w.onrender.com/api/predictions/?email=${email}&matchid=${matchid}`)
     const data = await response.json()
  
     if (!response.ok) {
@@ -36,7 +36,7 @@ export const getPredictions = async (email, matchid) => {
 export const storePredictions = async (email, matchid, homeGoals, awayGoals, gamemode) => {
     try {
         const score = `${homeGoals}-${awayGoals}`
-        const response = await fetch(`https://footballapp-u80w.onrender.com//api/predictions/predict`, {
+        const response = await fetch(`https://footballapp-u80w.onrender.com/api/predictions/predict`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -57,7 +57,7 @@ export const updatePlayerScore = async (email, predictedScore, actualScore) => {
     try {
         const points = matchPointLogic(predictedScore, actualScore)
 
-        const response = await fetch(`https://footballapp-u80w.onrender.com//api/players/score?email=${email}`, {
+        const response = await fetch(`https://footballapp-u80w.onrender.com/api/players/score?email=${email}`, {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({

@@ -36,7 +36,7 @@ export function Matchday() {
     useEffect(() => {
         const getTeams = async () => {
             try {
-                const response = await fetch(`https://footballapp-u80w.onrender.com//api/teams/${competition}`)
+                const response = await fetch(`https://footballapp-u80w.onrender.com/api/teams/${competition}`)
                 const data = await response.json()
                 setTeams(data)
             } catch (error) {

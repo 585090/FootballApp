@@ -1,139 +1,115 @@
 const bcrypt = require('bcryptjs');
+const Player = require('../models/Player');
 
-const { ObjectId } = require('mongodb');
-const { getDb } = require('../db');
-
+// GET all players
 exports.getAllPlayers = async (req, res) => {
-    try {
-        const players = await getDb().collection('players').find().toArray();
-
-        const sanitizedPlayers = players.map(player => ({
-        id: player._id,
-        name: player.name,
-        email: player.email,
-        score: typeof player.score === 'number' ? player.score : 0  // Ensure score is a number
-        }));
-
-        res.json(sanitizedPlayers);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to get all players' });
-    }
+  try {
+    const players = await Player.find({});
+    const sanitized = players.map(p => ({
+      id: p._id,
+      name: p.name,
+      email: p.email,
+      points: p.points || 0
+    }));
+    res.json(sanitized);
+  } catch (err) {
+    console.error('❌ getAllPlayers error:', err);
+    res.status(500).json({ error: 'Failed to get all players' });
+  }
 };
 
+// GET players by groupId (if you have groupId field in schema)
 exports.getPlayersByGroup = async (req, res) => {
-    try {
-        const playersInGroup = await db.collection('players').find({
-            groupIds: groupId
-            }).toArray();
-        
-            res.json(playersInGroup);
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to get players by group' });
-    }
-}
+  try {
+    const groupId = req.params.id;
+    const players = await Player.find({ groupIds: groupId });
+    res.json(players);
+  } catch (err) {
+    console.error('❌ getPlayersByGroup error:', err);
+    res.status(500).json({ error: 'Failed to get players by group' });
+  }
+};
 
+// SIGNUP
 exports.createPlayer = async (req, res) => {
+  try {
     const { email, name, password } = req.body;
-    
+    console.log('📩 Incoming signup:', { email, name });
+
     if (!email || !name || !password) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const existingPlayer = await getDb().collection('players').findOne({ email });
-    if (existingPlayer) {
-        return res.status(409).json({ error: 'Player already exists' });
+    const existing = await Player.findOne({ email });
+    if (existing) {
+      console.log('⚠️ Duplicate signup attempt:', email);
+      return res.status(409).json({ error: 'Player already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('✅ Hashed password on server:', hashedPassword);
-    const newPlayer = {
-        email,
-        name,
-        password: hashedPassword,
-        points: 0
-    };
+    const hashed = await bcrypt.hash(password, 10);
+    console.log('🔑 Hashed password created');
 
-    const result = await getDb().collection('players').insertOne(newPlayer);
-    console.log('Received on server:', newPlayer.points);    
-    return res.status(201).json({
-        message: 'Player registered',
-        player: {
-        email: newPlayer.email,
-        name: newPlayer.name,
-        id: result.insertedId,
-        points: newPlayer.points
-    }});
-}
+    const newPlayer = new Player({ email, name, password: hashed, points: 0 });
+    await newPlayer.save();
+    console.log('✅ New player saved:', newPlayer._id);
 
+    res.status(201).json({
+      message: 'Player registered',
+      player: { id: newPlayer._id, email, name, points: newPlayer.points }
+    });
+  } catch (err) {
+    console.error('❌ Signup error full:', err.message, err.stack);
+    res.status(500).json({ error: 'Server error', detail: err.message });
+  }
+};
+
+
+// LOGIN
 exports.loginPlayer = async (req, res) => {
+  try {
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-    }
+    const player = await Player.findOne({ email });
+    if (!player) return res.status(401).json({ error: 'Invalid email or password' });
 
-    try {
-        const player = await getDb().collection('players').findOne({ email });
-        
-        if (!player) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
+    const match = await bcrypt.compare(password, player.password);
+    if (!match) return res.status(401).json({ error: 'Invalid email or password' });
 
-        const passwordMatch = await bcrypt.compare(password, player.password);
+    res.status(200).json({
+      message: 'Login successful',
+      player: { id: player._id, email: player.email, name: player.name, points: player.points }
+    });
+  } catch (err) {
+    console.error('❌ Login error:', err);
+    res.status(500).json({ error: 'Failed to login player' });
+  }
+};
 
-        if (!passwordMatch) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
-
-        res.status(200).json({
-            message: 'Login successful',
-            player: {
-                id: player._id,
-                email: player.email,
-                name: player.name
-            }
-        });
-    } catch (error) {
-        console.error('Login error:', error.message, error.stack);
-        return res.status(500).json({ error: 'Failed to login player' });
-    }
-}
-
-
-
+// UPDATE SCORE
 exports.updatePlayerScore = async (req, res) => {
+  try {
     const { email, points } = req.body;
+    const result = await Player.updateOne({ email }, { $inc: { points } });
 
-    try {
-        const playerScore = await getDb().collection('players').updateOne(
-            { email },                      
-            { $inc: { score: points } }            
-        );
+    if (result.modifiedCount > 0) return res.json({ message: 'Player score updated' });
+    if (result.matchedCount > 0) return res.status(400).json({ error: 'Score unchanged' });
 
-        if (playerScore.modifiedCount > 0) {
-            res.json({ message: 'Player score updated successfully' });
-        } else if (playerScore.matchedCount > 0) {
-            res.status(400).json({ error: 'Player score is already up to date' });
-        } else {
-            res.status(404).json({ error: 'Player not found or score unchanged' });
-        }
-    
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update player score' });
-    }
-}
+    res.status(404).json({ error: 'Player not found' });
+  } catch (err) {
+    console.error('❌ updatePlayerScore error:', err);
+    res.status(500).json({ error: 'Failed to update score' });
+  }
+};
 
+// DELETE
 exports.deletePlayer = async (req, res) => {
-    try {
-        const result = await getDb().collection('players').deleteOne({ _id: ObjectId(req.params.id) });
-        
-        if (result.deletedCount > 0) {
-            res.json({ message: 'Player deleted successfully' });
-        } else {
-            res.status(404).json({ error: 'Player not found' });
-        }
-    
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to delete player' });
-    }
-}
+  try {
+    const result = await Player.deleteOne({ _id: req.params.id });
+    if (result.deletedCount > 0) return res.json({ message: 'Player deleted' });
+    res.status(404).json({ error: 'Player not found' });
+  } catch (err) {
+    console.error('❌ deletePlayer error:', err);
+    res.status(500).json({ error: 'Failed to delete player' });
+  }
+};

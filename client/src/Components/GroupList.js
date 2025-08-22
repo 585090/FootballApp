@@ -13,7 +13,8 @@ export const GroupList = () => {
         const loggedInPlayer = JSON.parse(localStorage.getItem('player'));
         const playerEmail = loggedInPlayer?.email;
         
-        fetch(`https://footballapp-u80w.onrender.com/api/groups/player/${playerEmail}`)
+        //fetch(`https://footballapp-u80w.onrender.com/api/groups/player/${playerEmail}`)
+        fetch(`http://localhost:5000/api/groups/player/${playerEmail}`)
         .then(response => response.json())
         .then(data => {
             if (Array.isArray(data)) {
@@ -22,7 +23,7 @@ export const GroupList = () => {
                 setGroups([]);
             }
         }).catch(error => console.error('Error fetching groups:',error))
-    }, [groups])
+    }, [])
 
     return (
         <div>
@@ -34,10 +35,10 @@ export const GroupList = () => {
                 <span className='Group-points'>Points</span>
                 </div>
                 {groups.map((group) => (
-                <Link to={`/group/${encodeURIComponent(group.id)}`} key={group.id} className='Group'>
-                    <div className='Group-name'>{group.name}</div>
+                <Link to={`/group/${encodeURIComponent(group._id)}`} key={group._id} className='Group'>
+                    <div className='Group-name'>{group.groupName}</div>
                     <div className='Group-tournament'>{group.tournament}</div>
-                    <div className='Group-points'>0</div>
+                    <div className='Group-points'>{0}</div>
                 </Link>
                 ))}
                 <button className='CreateGroup-button' onClick={togglePopup}>Create group</button>

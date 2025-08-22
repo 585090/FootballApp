@@ -1,147 +1,114 @@
-const { ObjectId } = require('mongodb');
-const { getDb } = require('../db');
+const Group = require('../models/Group');
+const Player = require('../models/Player');
 
+// GET groups by player email
 exports.getGroupsByPlayerEmail = async (req, res) => {
-  const email = req.params.email;
-
   try {
-    const player = await getDb().collection('players').findOne({ email });
+    const { email } = req.params;
+    const player = await Player.findOne({ email }).populate('groups', 'groupName tournament');
 
-    if (!player || !player.groups) {
+    if (!player || !player.groups.length) {
       return res.status(404).json({ error: 'Player or groups not found' });
     }
 
-    const groups = await getDb()
-      .collection('groups')
-      .find({ _id: { $in: player.groups } })
-      .project({ groupName: 1, tournament: 1 })
-      .toArray();
-
-    const formattedGroups = groups.map(group => ({
-      id: group._id,
-      name: group.groupName,
-      tournament: group.tournament
+    const formattedGroups = player.groups.map(g => ({
+      id: g._id,
+      name: g.groupName,
+      tournament: g.tournament,
     }));
 
     res.json(formattedGroups);
   } catch (err) {
-    console.error('Error fetching player groups:', err);
+    console.error('❌ Error fetching player groups:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
 
-
+// GET single group
 exports.getGroupById = async (req, res) => {
-  const groupId = req.params.id;
-
-  if (!ObjectId.isValid(groupId)) {
-    return res.status(400).json({ error: 'Invalid group ID format' });
-  }
-
   try {
-    const group = await getDb().collection('groups').findOne({ _id: new ObjectId(groupId) });
+    const { id } = req.params;
+    const group = await Group.findById(id).populate('players', 'name email points');
 
     if (!group) {
       return res.status(404).json({ error: 'Group not found' });
     }
 
-      const members = await getDb().collection('players')
-        .find({ groups: new ObjectId(groupId) })
-        .project({ name: 1, email: 1, points: 1, _id: 0 })
-        .toArray();
-
-    console.log("gamemodeId from backend:", group.gamemode);
     res.json({
       groupName: group.groupName,
       tournament: group.tournament,
       owner: group.owner,
       gamemode: group.gamemode,
-      members: members
+      members: group.players,
     });
-
   } catch (err) {
-    console.error('Error fetching group by ID:', err);
+    console.error('❌ Error fetching group by ID:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
+// POST create group
 exports.createGroup = async (req, res) => {
+  try {
     const { groupName, tournament, gamemode, email } = req.body;
-    
-    if (!groupName || !tournament) {
+
+    if (!groupName || !tournament || !email) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const existingGroup = await getDb().collection('groups').findOne({ groupName });
-    if (existingGroup) {
+    const existing = await Group.findOne({ groupName });
+    if (existing) {
       return res.status(409).json({ error: 'Group already exists' });
     }
 
-    const newGroup = {
-        groupName,
-        tournament,
-        gamemode,
-        owner: email
-    };
+    const newGroup = new Group({ groupName, tournament, gamemode, owner: email });
+    await newGroup.save();
 
-    try {
+    // add group to player
+    await Player.updateOne({ email }, { $push: { groups: newGroup._id } });
 
-      const result = await getDb().collection('groups').insertOne(newGroup);
+    res.status(201).json({
+      message: 'Group registered',
+      group: {
+        id: newGroup._id,
+        name: newGroup.groupName,
+        tournament: newGroup.tournament,
+        gamemode: newGroup.gamemode,
+        owner: newGroup.owner,
+      },
+    });
+  } catch (err) {
+    console.error('❌ Error creating group:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
-      await getDb().collection('players').updateOne(
-        { email: email },
-        { $push: { groups: result.insertedId } });
-
-      console.log('Received on server:', newGroup.groupName, 'by', newGroup.owner);    
-      
-      return res.status(201).json({
-          message: 'Group registered',
-          group: {
-          id: result.insertedId,
-          name: newGroup.groupName,
-          tournament: newGroup.tournament,
-          gamemode: Number(newGroup.gamemode),
-          owner: newGroup.owner
-    }}); 
-
-    } catch (error) {
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-}
-
+// POST add player to group
 exports.addPlayerToGroup = async (req, res) => {
+  try {
     const { groupId } = req.params;
-    const {email} = req.body;
+    const { email } = req.body;
 
-    if (!ObjectId.isValid(groupId)) {
-      return res.status(400).json({ error: 'Invalid group ID' });
-    }
-    
-    if (!email) {
-      return res.status(400).json({ error: 'Player email is required' });
-    }
+    const player = await Player.findOne({ email });
+    if (!player) return res.status(404).json({ error: 'Player not found' });
 
-    try {
-      const group = await getDb().collection('groups').findOne({ _id: new ObjectId(groupId) });
-      
-      if (!group) {
-        return res.status(404).json({ error: 'Group not found' });
-      }
+    const group = await Group.findById(groupId);
+    if (!group) return res.status(404).json({ error: 'Group not found' });
 
-      const updateResult = await getDb().collection('players').updateOne(
-        { email: email },
-        { $addToSet: { groups: new ObjectId(groupId) } }  // $addToSet avoids duplicates
-      );
-
-      if (updateResult.matchedCount === 0) {
-        return res.status(404).json({ error: 'Player not found' });
-      }
-
-      res.json({ message: `Player ${email} added to group ${group.groupName}` });
-
-    } catch (error) {
-      console.error('Error adding player to group:', error);
-      res.status(500).json({ error: 'Internal server error' });
+    // add player <-> group references
+    if (!player.groups.includes(group._id)) {
+      player.groups.push(group._id);
+      await player.save();
     }
 
-}
+    if (!group.players.includes(player._id)) {
+      group.players.push(player._id);
+      await group.save();
+    }
+
+    res.json({ message: `Player ${email} added to group ${group.groupName}` });
+  } catch (err) {
+    console.error('❌ Error adding player to group:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

@@ -49,7 +49,13 @@ exports.createPlayer = async (req, res) => {
     const hashed = await bcrypt.hash(password, 10);
     console.log('🔑 Hashed password created');
 
-    const newPlayer = new Player({ email, name, password: hashed, points: 0 });
+    const newPlayer = new Player({
+      email,
+      name,
+      password: hashed,
+      points: 0,
+      groups: []    // 👈 ensure groups field exists
+    });
     await newPlayer.save();
     console.log('✅ New player saved:', newPlayer._id);
 

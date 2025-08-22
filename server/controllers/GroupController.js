@@ -5,24 +5,20 @@ const Player = require('../models/Player');
 exports.getGroupsByPlayerEmail = async (req, res) => {
   try {
     const { email } = req.params;
-    const player = await Player.findOne({ email }).populate('groups', 'groupName tournament');
+    const player = await Player.findOne({ email })
+      .populate('groups', 'groupName tournament gamemode owner');
 
-    if (!player || !player.groups.length) {
-      return res.status(404).json({ error: 'Player or groups not found' });
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
     }
 
-    const formattedGroups = player.groups.map(g => ({
-      id: g._id,
-      name: g.groupName,
-      tournament: g.tournament,
-    }));
-
-    res.json(formattedGroups);
+    res.json(player.groups || []);
   } catch (err) {
     console.error('❌ Error fetching player groups:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 
 // GET single group
 exports.getGroupById = async (req, res) => {
@@ -56,16 +52,42 @@ exports.createGroup = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // 👀 Normalize email
+    const cleanEmail = email.toLowerCase();
+
+    // Check existing group
     const existing = await Group.findOne({ groupName });
     if (existing) {
       return res.status(409).json({ error: 'Group already exists' });
     }
 
-    const newGroup = new Group({ groupName, tournament, gamemode, owner: email });
+    // Create new group
+    const newGroup = new Group({
+      groupName,
+      tournament,
+      gamemode,
+      owner: cleanEmail,
+    });
     await newGroup.save();
+    console.log("✅ New group saved:", newGroup._id);
 
-    // add group to player
-    await Player.updateOne({ email }, { $push: { groups: newGroup._id } });
+    // Fetch player
+    const player = await Player.findOne({ email: cleanEmail });
+    if (!player) {
+      console.error("❌ No player found with email:", cleanEmail);
+      return res.status(404).json({ error: "Player not found" });
+    }
+    console.log("✅ Found player:", player._id);
+
+    // Update player's groups
+    player.groups.push(newGroup._id);
+    await player.save();
+    console.log("✅ Player updated with new group:", player.groups);
+
+    // Update group's players
+    newGroup.players.push(player._id);
+    await newGroup.save();
+    console.log("✅ Group updated with new player:", newGroup.players);
 
     res.status(201).json({
       message: 'Group registered',
@@ -77,11 +99,13 @@ exports.createGroup = async (req, res) => {
         owner: newGroup.owner,
       },
     });
+
   } catch (err) {
     console.error('❌ Error creating group:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', detail: err.message });
   }
 };
+
 
 // POST add player to group
 exports.addPlayerToGroup = async (req, res) => {

@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const MatchSchema = new mongoose.Schema({
   matchId: { type: Number, required: true, unique: true }, // from football-data API
   competition: { type: String, required: true },

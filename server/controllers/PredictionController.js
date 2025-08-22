@@ -1,79 +1,80 @@
-const { ObjectId } = require('mongodb');
-const { getDb } = require('../db');
+const Prediction = require('../models/Prediction');
 
+// GET a single prediction for a match
 exports.getPrediction = async (req, res) => {
-    const { email, matchid } = req.query;
-    if (!email || !matchid) {
-        return res.status(400).json({ error: "Email and matchid required" });
-    }
+  const { email, matchid } = req.query;
+  if (!email || !matchid) {
+    return res.status(400).json({ error: 'Email and matchid required' });
+  }
 
-    try {
-        const matchIdInt = parseInt(matchid)
-        const prediction = await getDb()
-            .collection('predictions')
-            .findOne({ 
-                email: email.toLowerCase(),
-                matchid: matchIdInt 
-            });
-        
-        console.log('Sending prediction for match', matchIdInt, ':', prediction)
-        res.status(200).json(prediction || null);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Failed to fetch prediction" });
-    }
+  try {
+    const matchIdInt = parseInt(matchid, 10);
+    const prediction = await Prediction.findOne({
+      email: email.toLowerCase(),
+      matchid: matchIdInt,
+    });
+
+    console.log('🎯 Sending prediction for match', matchIdInt, prediction);
+    res.status(200).json(prediction || null);
+  } catch (err) {
+    console.error('❌ Error in getPrediction:', err);
+    res.status(500).json({ error: 'Failed to fetch prediction' });
+  }
 };
 
+// CREATE or UPDATE a prediction
 exports.makePrediction = async (req, res) => {
-    const {email, matchid, score, gamemode} = req.body;
+  const { email, matchid, score, gamemode } = req.body;
 
-    const result = await getDb().collection('predictions').updateOne(
-        { matchid, email, gamemode },
-        { $set: { score } },
-        { upsert: true }
+  try {
+    const updated = await Prediction.findOneAndUpdate(
+      { email: email.toLowerCase(), matchid, gamemode },
+      { $set: { score } },
+      { new: true, upsert: true }
     );
 
-    console.log('Recieved prediction:', result)
+    console.log('✅ Prediction saved:', updated);
 
-    return res.status(200).json({
-        message: result.upsertedCount ? 'Prediction created' : 'Prediction updated',
-        prediction: { email, matchid, score, gamemode }
+    res.status(200).json({
+      message: updated.isNew ? 'Prediction created' : 'Prediction updated',
+      prediction: updated,
     });
-}
-
-exports.storePlayersPredictionTable = async (req, res) => {
-    const { email, competition, season, prediction } = req.body;
-
-    try {
-        const savedPrediction = await getDb().collection('predictions').findOneAndUpdate(
-            { email, competition, season },
-            { $set: { email, competition, season, prediction } },
-            {upsert: true, new: true}
-        );
-
-        res.json(savedPrediction)
-        console.log('Predictions saved for:', savedPrediction.email)
-    
-    } catch (error) {
-        console.error("❌ Backend error in storing prediction table:", error);
-        return res.status(500).json({ error: 'Failed to store table' })
-    }
+  } catch (err) {
+    console.error('❌ Error in makePrediction:', err);
+    res.status(500).json({ error: 'Failed to save prediction' });
+  }
 };
 
+// STORE a whole prediction table (per competition/season)
+exports.storePlayersPredictionTable = async (req, res) => {
+  const { email, competition, season, prediction } = req.body;
+
+  try {
+    const saved = await Prediction.findOneAndUpdate(
+      { email: email.toLowerCase(), competition, season },
+      { $set: { prediction } },
+      { new: true, upsert: true }
+    );
+
+    console.log('💾 Predictions table saved for:', email, competition, season);
+    res.json(saved);
+  } catch (err) {
+    console.error('❌ Backend error in storing prediction table:', err);
+    res.status(500).json({ error: 'Failed to store table' });
+  }
+};
+
+// GET a whole prediction table
 exports.getPredictionTable = async (req, res) => {
-    const {email, competition, season} = req.query;
+  const { email, competition, season } = req.query;
 
-    try {
-        const predictionTable = await getDb().collection('predictions').findOne({
-            email, competition, season
-        })
+  try {
+    const table = await Prediction.findOne({ email, competition, season });
+    if (!table) return res.status(404).json({ error: 'Predictions not found' });
 
-        if(!predictionTable) return res.status(400).json({error: 'Predictions not found'})
-        res.json(predictionTable.prediction);
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({error: '❌ Backend error, failed to fetch prediction table'})
-    }
-}
-
+    res.json(table.prediction);
+  } catch (err) {
+    console.error('❌ Error in getPredictionTable:', err);
+    res.status(500).json({ error: 'Failed to fetch prediction table' });
+  }
+};

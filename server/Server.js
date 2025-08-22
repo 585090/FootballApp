@@ -17,8 +17,7 @@ const MONGODB_URI = process.env.MONGODB_URI;
 // ---- Explicit CORS (handles preflight reliably) ----
 const allowed = new Set([
   'http://localhost:3000',
-  'https://footyguru.netlify.app',   // add more origins if you use custom domains
-  // 'https://your-custom-domain.com',
+  'https://footyguru.netlify.app'
 ]);
 
 app.use((req, res, next) => {
@@ -37,6 +36,8 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+app.use(express.json({ limit: '5mb' }));
 
 // Routes
 app.use('/api/players', playersRoutes);

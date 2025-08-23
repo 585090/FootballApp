@@ -28,23 +28,7 @@ function groupMatchesByDay(matches) {
 export function Matchday() {
     const [currentMatchweek, setcurrentMatchweek] = useState(1);
     const [matches, setMatches] = useState([]);
-    const [teams, setTeams] = useState([]);
     const [predictions ] = useState([]);
-    const [competition] = useState('PL')
-
-    // Fetch teams
-    useEffect(() => {
-        const getTeams = async () => {
-            try {
-                const response = await fetch(`https://footballapp-u80w.onrender.com/api/teams/${competition}`)
-                const data = await response.json()
-                setTeams(data)
-            } catch (error) {
-                console.log('Error getting teams', error)
-            }
-        }
-        getTeams();
-    }, [competition])
 
   //Fetch matches
   useEffect(() => {
@@ -59,12 +43,6 @@ export function Matchday() {
     }
     fetchMatches();
   }, [currentMatchweek]);
-
-    function getTeamCrest(teamName) {
-        if (!teams || teams.length === 0) return "";
-        const team = teams.find(t => t.teamName === teamName);
-        return team ? team.logo : "";
-    }
 
   function sortMatchesByKickOff(matches) {
     return matches.slice().sort((a, b) => new Date(a.kickoffDateTime) - new Date(b.kickoffDateTime));
@@ -92,8 +70,8 @@ export function Matchday() {
                 KickOff={match.kickoffDateTime}
                 score={match.score}
                 status={match.status}
-                homeCrest={getTeamCrest(match.homeTeam)}
-                awayCrest={getTeamCrest(match.awayTeam)}
+                homeCrest={match.homeTeam}
+                awayCrest={match.awayTeam}
               />
             ))}
           </div>

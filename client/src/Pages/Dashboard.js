@@ -35,20 +35,23 @@ export default function Dashboard() {
         <div>
             <NavigationBar />
             <div className='Dashboard-Container'>
-                <div className='extraButtons-container'>
+                <div className='extraButtons-card'>
                     <button className='extraButton' >Button 1</button>
                     <button className='extraButton' >Button 1</button>
                     <button className='extraButton' >Button 1</button>
                 </div>
-                <div  className='Match-Container'>
+                <div  className='Match-card'>
                     <h2>Todays matches</h2>
                     {matches.length > 0 ? (
                         matches.slice(0,3).map(match => (
-                        <Match className="Matches" 
-                            HT={match.teamA} 
-                            AT={match.teamB} 
-                            KickOff={"match.kickoff"}
+                        <Match className="Matches"
+                            key={match.matchId}
+                            HT={match.homeTeam} 
+                            AT={match.awayTeam} 
+                            KickOff={match.kickoffDateTime}
                             score={match.score}
+                            homeCrest={match.homeTeam}
+                            awayCrest={match.awayTeam}
                             showInfo={false}/>)
                         )
                     ) : (

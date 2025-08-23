@@ -5,12 +5,10 @@
   flex-direction: column; /* Stack .Match-main and .MatchStatus vertically */
   align-items: center;
   justify-content: center;
-  border-top: 0.2rem solid var(--primary-color);
-  border-bottom: 0.2rem solid var(--primary-color);
-  max-width: 55rem;
+  border: 0.2rem solid var(--primary-color);
   margin: 1rem auto;
-  max-width: 55rem;
-  max-height: 14rem;
+  max-width: 50%;
+  min-height: 4rem;
 }
 
 .Match-main {
@@ -23,36 +21,39 @@
 }
 
 .MatchTime {
-  flex: 0 0 5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: var(--text-color);
-  font-size: 1.2rem;
-  font-weight: bold;
-  border-right: 2px solid var(--primary-color);
+    flex: 0 0 5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-right: 0.1rem solid var(--primary-color);
+    align-self: stretch;
 }
 
 .HomeTeam,
 .AwayTeam {
-  width: 24rem;
   font-size: 1.3rem;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-color);
-  white-space: normal;
 }
 
 .HomeTeam {
-  display: flex;
   justify-content: flex-end;
   float: right;
 }
+
 .AwayTeam {
-  display: flex;
   justify-content: flex-start;
   float: left;
+}
+
+.TeamText {
+  width: 5rem;
+  text-align: center;
 }
 
 .vs {
@@ -61,6 +62,7 @@
   align-items: center;
   font-size: 1.5rem;
   font-weight: bold;
+  margin: 0;
   color: var(--text-color);
 }
 
@@ -75,21 +77,22 @@
 }
 
 .FinalScore {
-  width: 3rem;
-  height: 3rem;
   font-size: 1.5rem;
   font-weight: bold;
+  margin: 0.3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-color);;
+  color: var(--text-color);
   word-break: break-word;
   white-space: normal;
 }
 
-img {
-  max-width: 2rem;
-  margin: 1rem;
+.teamLogo {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  margin: 0.3rem;
 }
 
 .Prediction-Container {
@@ -100,17 +103,16 @@ img {
 }
 
 .Predict-button {
-  width: 2rem;
-  height: 2rem;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: var(--background-color);
   border: 0.2rem solid black;
   border-radius: 5rem;
   font-size: 1rem;
   font-weight: bold;
   color: var(--text-color);
-  padding: 0.4rem;
-  margin-right: 1rem;
+  margin: 1rem auto;   /* 👈 centers it horizontally */
 }
 
 .Prediction-button:hover {
@@ -132,9 +134,14 @@ img {
 
 @media (max-width: 600px) {
   .Match-container {
-    width: 100%;
+    max-width: 100%;
     height: 5rem;
-    padding: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .Match-main {
+    margin-right: 1rem;
   }
 
   .MatchTime {
@@ -148,17 +155,12 @@ img {
     margin: 0;
   }
 
-  .Flags {
-    font-size: 2.5rem;
-  }
   .vs {
     margin: 0.5rem;
     font-size: 0.7rem;
   }
 
   .Predict-button {
-    width: 3rem;
-    height: 3rem;
     font-size: 0.6rem;
     border: 0.15rem solid black;
   }
@@ -171,8 +173,7 @@ img {
     font-size: 0.7rem;
   }
 
-  img {
-    margin: 0.5rem;
+  .FinalScore {
+    font-size: 1.2rem;
   }
-
 }

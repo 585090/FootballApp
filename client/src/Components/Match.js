@@ -5,6 +5,8 @@ import { storePredictions, getPredictions, updatePlayerScore } from '../services
 export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, homeCrest, awayCrest }) => {
     const [homeScore, setHomeScore] = useState(null);
     const [awayScore, setAwayScore] = useState(null);
+    const [teams, setTeams] = useState([]);
+    const [competition] = useState('PL')
 
     function getTime (ISODateString) {
         const date = new Date(ISODateString)
@@ -48,6 +50,25 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
         }
     };
 
+    function getTeamCrest(teamName) {
+        if (!teams || teams.length === 0) return "";
+        const team = teams.find(t => t.teamName === teamName);
+        return team ? team.logo : "";
+    }
+
+    useEffect(() => {
+        const getTeams = async () => {
+            try {
+                const response = await fetch(`https://footballapp-u80w.onrender.com/api/teams/${competition}`)
+                const data = await response.json()
+                setTeams(data)
+            } catch (error) {
+                console.log('Error getting teams', error)
+            }
+        }
+        getTeams();
+    }, [competition])
+
     useEffect(() => {
         const fetchPrediction = async () => {
             try {
@@ -76,8 +97,10 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                     <p> { getTime(KickOff) } </p>
                 </div>
                 <span className="HomeTeam">
+                    {showInfo && (
                     <p className='TeamText'>{HT}</p>
-                    <img className='teamLogo' src={homeCrest} alt='' />
+                    )}
+                    <img className='teamLogo' src={getTeamCrest(homeCrest)} alt='' />
                         {status !== 'not started' ? (
                             <p className="FinalScore">{score?.home ?? homeScore ?? '-'}</p>
                         ) : (
@@ -109,10 +132,16 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                                 onChange={(e) => setAwayScore(parseInt(e.target.value || ''))} />
                         )
                     )}
-                    <img className='teamLogo' src={awayCrest} alt='' />
-                    <p className='TeamText'>{AT}</p>
+                    <img className='teamLogo' src={getTeamCrest(awayCrest)} alt='' />
+                    {showInfo && (
+                        <p className='TeamText'>{AT}</p>
+                    )}
                 </span>
-                <button className='Predict-button' onClick={handlePrediction} >Predict</button>
+            </div>
+            <div className='Prediction-container'>
+                {showInfo && status === "not started" && (
+                    <button className='Predict-button' onClick={handlePrediction} >Predict</button>
+                )}
             </div>
         </div>
     );

@@ -1,4 +1,6 @@
 require('dotenv').config();
+require('./cron/fetchFinishedMatches')
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');

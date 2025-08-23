@@ -23,8 +23,7 @@ exports.getTeamsByCompetition = async (req, res) => {
 
     // Otherwise fetch fresh from API
     const API_URL = `https://api.football-data.org/v4/competitions/${competition}/teams`;
-    const API_URL_PrevStanding =
-      'https://api.football-data.org/v4/competitions/PL/standings?season=2024';
+    const API_URL_PrevStanding = `https://api.football-data.org/v4/competitions/${competition}/standings?season=2024`;
     const API_TOKEN = process.env.FOOTBALL_API_TOKEN;
 
     const responseTeams = await axios.get(API_URL, {

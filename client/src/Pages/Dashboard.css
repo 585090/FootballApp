@@ -2,11 +2,18 @@
 
 .Dashboard-Container {
     display: grid;
-    align-items: center;
+    grid-template-areas:
+        "buttons matches"
+        "group   group";
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto;
-    width: 100%;
-    }
+    gap: 1rem; /* add some spacing */
+    margin: 1rem;
+}
+
+.extraButtons-container { grid-area: buttons; }
+.Match-Container       { grid-area: matches; }
+.Group-Container       { grid-area: group; }
 
 .Dashboard-title {
     width: 100%;
@@ -15,52 +22,46 @@
     color: var(--text-color);
 }
 
-.extraButtons-container {
+.extraButtons-card {
+    width: 100%;
+    max-height: 8rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 30rem;
     border: 0.2rem solid var(--primary-color);
     border-radius: 1rem;
 }
 
 .extraButton {
-    width: 50%;
-    height: 3rem;
-    margin: 1rem;
+    height: 2rem;
+    margin: 0.5rem;
 }
 
-.Match-Container {
-    max-width: 30rem;
+.Match-card {
     font-size: 1rem;
     text-align: center;
     border: 0.2rem solid var(--primary-color);
     border-radius: 1rem;
+    justify-content: center;
+    align-items: center;
 }
 
 .Matchday-link {
     display: inline-block;
     color: var(--text-color);
-    margin: 1rem;
+    margin: 0.2rem;
 }
 
 .Group-Container {
     display: flex;
-    grid-column: 1 / -1;
     justify-content: center;
+    align-items: center;
 }
 
 @media (max-width: 600px) {
-    .Dashboard-Container  {
+    .extraButtons-card,
+    .Match-card {
         width: 100%;
-    }
-
-    .extraButtons-container {
-        width: 90%;
-    } 
-
-    .Match-Container {
         font-size: 0.8rem;
-        width: 90%;
     }
 }

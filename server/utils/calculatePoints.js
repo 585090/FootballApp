@@ -9,18 +9,15 @@ function tablePointLogic (predictedIndex, trueIndex) {
 }
 
 
-function matchPointLogic (predictedScore, actualScore) {
+function matchPointLogic (predictedHomeScore, predictedAwayScore , actualHomeScore, actualAwayScore) {
     if (!predictedScore || !actualScore) return 0;
-
-    const [predHome, predAway] = predictedScore.split('-').map(Number);
-    const [actHome, actAway] = actualScore.split('-').map(Number);
     
-    const predictedOutcome = predHome > predAway ? 'H' : predHome < predAway ? 'A' : 'D';
-    const actualOutcome = actHome > actAway ? 'H' : actHome < actAway ? 'A' : 'D';
+    const predictedOutcome = predictedHomeScore > predictedAwayScore ? 'H' : predictedHomeScore < predictedAwayScore ? 'A' : 'D';
+    const actualOutcome = actualHomeScore > actualAwayScore ? 'H' : actualHomeScore < actualAwayScore ? 'A' : 'D';
 
-    if (predHome === actHome && predAway === actAway) return 3;
+    if (predictedHomeScore === actualHomeScore && predictedAwayScore === actualAwayScore) return 3;
     if (predictedOutcome === actualOutcome) return 2;
-    if (predHome === actHome || predAway === actAway) return 1;
+    if (predictedHomeScore === actualHomeScore || predictedAwayScore === actualAwayScore) return 1;
 
     return 0;
 }

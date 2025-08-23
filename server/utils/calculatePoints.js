@@ -10,7 +10,7 @@ function tablePointLogic (predictedIndex, trueIndex) {
 
 
 function matchPointLogic (predictedHomeScore, predictedAwayScore , actualHomeScore, actualAwayScore) {
-    if (!predictedScore || !actualScore) return 0;
+    if (!predictedHomeScore  || !predictedAwayScore || !actualHomeScore || !actualAwayScore) return 0;
     
     const predictedOutcome = predictedHomeScore > predictedAwayScore ? 'H' : predictedHomeScore < predictedAwayScore ? 'A' : 'D';
     const actualOutcome = actualHomeScore > actualAwayScore ? 'H' : actualHomeScore < actualAwayScore ? 'A' : 'D';

@@ -16,10 +16,10 @@ cron.schedule('*/5 * * * *', async () => {
     const data = await response.json();
 
     for (const match of data.matches) {
-      if (match.status === 'FINISHED') {
+      if (match.status !== 'TIMED' || match.status !== 'SCHEDULED') {
         const homeScore = match.score.fullTime.home;
         const awayScore = match.score.fullTime.away;
-
+        console.log(`⚽ Processing finished match: ${match.id} - ${match.homeTeam.shortName} ${homeScore} vs ${awayScore} ${match.awayTeam.shortName} status ${match.status}`);
         // ✅ Update or insert match
         await Match.findOneAndUpdate(
           { matchId: match.id },

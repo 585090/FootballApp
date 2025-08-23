@@ -26,9 +26,9 @@ function groupMatchesByDay(matches) {
 
 
 export function Matchday() {
-    const [currentMatchweek, setcurrentMatchweek] = useState(1);
+    const [currentMatchweek, setcurrentMatchweek] = useState(null);
     const [matches, setMatches] = useState([]);
-    const [predictions ] = useState([]);
+    const [ predictions ] = useState([]);
 
   //Fetch matches
   useEffect(() => {
@@ -48,13 +48,41 @@ export function Matchday() {
     return matches.slice().sort((a, b) => new Date(a.kickoffDateTime) - new Date(b.kickoffDateTime));
   }
 
+  useEffect(() => {
+    const fetchInitialMatchweek = async () => {
+      const allMatches = await getMatches(); // get all matches of the season
+      if (!allMatches) return;
+
+      const today = new Date();
+
+      // Find first matchweek where at least one match is >= today
+      const groupedByWeek = allMatches.reduce((acc, match) => {
+        if (!acc[match.matchweek]) acc[match.matchweek] = [];
+        acc[match.matchweek].push(match);
+        return acc;
+      }, {});
+
+      const current = Object.keys(groupedByWeek).find(week =>
+        groupedByWeek[week].some(m => new Date(m.kickoffDateTime) >= today)
+      );
+
+      if (current) {
+        setcurrentMatchweek(Number(current));
+      }
+    };
+
+    fetchInitialMatchweek();
+  }, []);
+
+
+
   const groupedMatches = groupMatchesByDay(matches);
 
   return (
     <div>
       <NavigationBar />
       <div className="Matchday-container">
-        <MatchweekSwitcher onMatchweekChange={setcurrentMatchweek} />
+        <MatchweekSwitcher currentWeek={currentMatchweek} onMatchweekChange={setcurrentMatchweek} />
         {Object.entries(groupedMatches).map(([day, dayMatches]) => (
           <div key={day} >
               <div className="matchDay-title" >

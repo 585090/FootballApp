@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./MatchDateSwitcher.css";
 
 export function MatchweekSwitcher({ onMatchweekChange }) {
-  const [selectedWeek, setSelectedWeek] = useState(1);
+  const [selectedWeek, setSelectedWeek] = useState(null);
 
   const handlePrevious = () => {
     setSelectedWeek((prevWeek) => {

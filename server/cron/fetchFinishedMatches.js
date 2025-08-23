@@ -5,7 +5,7 @@ const { matchPointLogic } = require('../utils/calculatePoints');
 const { updatePlayerScore } = require('../controllers/PlayerController');
 
 // Run every 10 minutes
-cron.schedule('*/10 * * * *', async () => {
+cron.schedule('*/5 * * * *', async () => {
   try {
     const response = await fetch('https://api.football-data.org/v4/competitions/PL/matches', {
       headers: {
@@ -27,8 +27,8 @@ cron.schedule('*/10 * * * *', async () => {
             $set: {
               status: match.status,
               score: { home: homeScore, away: awayScore },
-              homeTeam: match.homeTeam.name,
-              awayTeam: match.awayTeam.name,
+              homeTeam: match.homeTeam.shortName,
+              awayTeam: match.awayTeam.shortName,
               homeCrest: match.homeTeam.crest,
               awayCrest: match.awayTeam.crest,
               kickoffDateTime: match.utcDate,

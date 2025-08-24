@@ -3,7 +3,7 @@ import { UserPlusIcon } from '@phosphor-icons/react';
 
 const Scoreboard = ({ players, handleClick }) => {
 
- const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+ const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
 
   return (
     <div>
@@ -18,7 +18,7 @@ const Scoreboard = ({ players, handleClick }) => {
           <div key={player.name} className='Player'>
             <span className='Player-rank'>{index + 1}.</span>
             <span className='Player-name'>{player.name}</span>
-            <span className='Player-score'>{player.score || '0'}</span>
+            <span className='Player-score'>{player.points || '0'}</span>
           </div>
         ))}
         <button className='Scoreboard-AddPlayerButton' onClick={handleClick}> <UserPlusIcon size={32} color='white'/> </button>

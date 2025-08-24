@@ -8,6 +8,7 @@ const PredictionSchema = new mongoose.Schema({
     home: { type: Number, default: null },
     away: { type: Number, default: null },
   },
+  pointsAwarded: { type: Number, default: null },
   gamemode: { type: String }, // e.g., "classic" or "fantasy"
 
   // optional: storing whole table per season

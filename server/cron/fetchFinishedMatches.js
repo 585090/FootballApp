@@ -2,10 +2,10 @@ const cron = require('node-cron');
 const Match = require('../models/Match');       // your Mongoose model
 const Prediction = require('../models/Prediction'); // your Mongoose model
 const { matchPointLogic } = require('../utils/calculatePoints');
-const { updatePlayerScore } = require('../controllers/PlayerController');
+const { incrementPlayerScore } = require('../controllers/PlayerController');
 
 // Run every 10 minutes
-cron.schedule('*/10 * * * *', async () => {
+cron.schedule('*/5 * * * *', async () => {
   try {
     const response = await fetch('https://api.football-data.org/v4/competitions/PL/matches', {
       headers: {
@@ -14,21 +14,22 @@ cron.schedule('*/10 * * * *', async () => {
     });
 
     const data = await response.json();
+    const validStatuses = ['FINISHED', 'IN_PLAY', 'PAUSED'];
 
     for (const match of data.matches) {
-      if (match.status === 'FINISHED') {
-        const homeScore = match.score.fullTime.home;
-        const awayScore = match.score.fullTime.away;
-
+      if (validStatuses.includes(match.status)) {
+        const homeScore = match.score.fullTime.home || match.score.halfTime.home || 0;
+        const awayScore = match.score.fullTime.away || match.score.halfTime.away || 0;
+        console.log(`⚽ Processing finished match: ${match.id} - ${match.homeTeam.shortName} ${homeScore} vs ${awayScore} ${match.awayTeam.shortName} status ${match.status}`);
         // ✅ Update or insert match
         await Match.findOneAndUpdate(
           { matchId: match.id },
           {
             $set: {
               status: match.status,
-              score: { home: homeScore, away: awayScore },
-              homeTeam: match.homeTeam.name,
-              awayTeam: match.awayTeam.name,
+              score: { home: homeScore , away: awayScore },
+              homeTeam: match.homeTeam.shortName,
+              awayTeam: match.awayTeam.shortName,
               homeCrest: match.homeTeam.crest,
               awayCrest: match.awayTeam.crest,
               kickoffDateTime: match.utcDate,
@@ -41,9 +42,14 @@ cron.schedule('*/10 * * * *', async () => {
         const predictions = await Prediction.find({ matchid: match.id });
 
         for (const pred of predictions) {
-          const points = matchPointLogic(pred.score.home, pred.score.home, homeScore, awayScore);
-          await updatePlayerScore(pred.email, points);
-          console.log(`🏆 Updated ${pred.email} with ${points} points for match ${match.id}`);
+          if (!pred.score) continue;
+          if (pred.pointsAwarded) continue;
+          
+          const points = matchPointLogic(pred.score.home, pred.score.away, homeScore, awayScore);
+          await incrementPlayerScore(pred.email, points);
+          pred.pointsAwarded = points;
+          await pred.save();
+          console.log(`${pred.email} predicted ${pred.score.home}-${pred.score.away}, actual ${homeScore}-${awayScore} for match ${match.id}, awarded ${points} points`);
         }
       }
     }

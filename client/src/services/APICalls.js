@@ -47,7 +47,7 @@ export const storePredictions = async (email, matchid, homeGoals, awayGoals, gam
             })
         })*/
 
-        const response = await fetch(`http://localhost:5000/api/predictions/predict`, {
+        const response = await fetch(`http://footballapp-u80w.onrender.com/api/predictions/predict`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({

@@ -108,6 +108,11 @@ exports.updatePlayerScore = async (req, res) => {
   }
 };
 
+async function incrementPlayerScore(email, points) {
+  const result = await Player.updateOne({ email }, { $inc: { points } });
+  return result;
+}
+
 // DELETE
 exports.deletePlayer = async (req, res) => {
   try {
@@ -119,3 +124,5 @@ exports.deletePlayer = async (req, res) => {
     res.status(500).json({ error: 'Failed to delete player' });
   }
 };
+
+exports.incrementPlayerScore = incrementPlayerScore;

@@ -22,15 +22,14 @@ export default function Account () {
                         <h2> Account details </h2>
                         <p> <strong> Email: </strong> {player.email}</p>
                         <p> <strong> Usename: </strong> {player.name}</p>
-                        <button className="AccountDetails-button" >More info</button>
+                        <button className="AccountDetails-button" >More info</button> <br />
+                        <button className="Account-button" onClick={handleSignOut} >Sign out</button>
                     </div>
             
                 ) : (
                     <p>No account details available</p>
                 )}
-            </div>
-            <div className="Account-buttons" >
-                <button className="Account-button" onClick={handleSignOut} >Sign out</button>
+
             </div>
         </div>
     )

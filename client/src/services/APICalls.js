@@ -36,18 +36,7 @@ export const getPredictions = async (email, matchid) => {
 export const storePredictions = async (email, matchid, homeGoals, awayGoals, gamemode) => {
     try {
         const score = {home: homeGoals, away: awayGoals}
-        /*const response = await fetch(`https://footballapp-u80w.onrender.com/api/predictions/predict`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                email,
-                matchid,
-                score,
-                gamemode
-            })
-        })*/
-
-        const response = await fetch(`http://footballapp-u80w.onrender.com/api/predictions/predict`, {
+        const response = await fetch(`https://footballapp-u80w.onrender.com/api/predictions/predict`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({

@@ -6,7 +6,7 @@ export function MatchweekSwitcher({ onMatchweekChange }) {
 
   const handlePrevious = () => {
     setSelectedWeek((prevWeek) => {
-      const newWeek = Math.max(1, prevWeek - 1);
+      const newWeek = prevWeek - 1;
       onMatchweekChange?.(newWeek);
       console.log('Matchweek', newWeek);
       return newWeek;

@@ -6,6 +6,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
     const [homeScore, setHomeScore] = useState(null);
     const [awayScore, setAwayScore] = useState(null);
     const [teams, setTeams] = useState([]);
+    const [ message, setMessage ] = useState('');
     const [competition] = useState('PL')
 
     function getTime (ISODateString) {
@@ -15,8 +16,9 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
     }
 
     useEffect(() => {
+        const validStatuses = ['FINISHED', 'IN_PLAY', 'PAUSED'];
         const handleScoreUpdate = async () => {
-            if (status === 'finished') {
+            if (validStatuses.includes(status)) {
                 const player = JSON.parse(localStorage.getItem('player'));
                 if (!player?.email) return;
 
@@ -44,7 +46,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
             }
 
             await storePredictions(player.email, matchid, homeScore, awayScore, gamemode);
-
+            setMessage('Prediction saved!');
         } catch (error) {
             console.error('Error saving prediction:', error);
         }
@@ -138,11 +140,13 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                     )}
                 </span>
             </div>
-            <div className='Prediction-container'>
-                {showInfo && status === "not started" && (
+            {showInfo && status === "not started" && (
+                <div className='Prediction-container'>
                     <button className='Predict-button' onClick={handlePrediction} >Predict</button>
-                )}
-            </div>
+                    <span className='predictionMessage'> {message} </span>
+                </div>
+
+            )}
         </div>
     );
 }

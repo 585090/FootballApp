@@ -8,27 +8,28 @@
   border: 0.2rem solid var(--primary-color);
   margin: 1rem auto;
   max-width: 50%;
-  min-height: 6rem;              /* 👈 give a solid row height */
 }
 
 .Match-main {
   display: flex;
   flex-direction: row;
-  align-items: center;           /* vertical centering */
+  align-items: center;
   width: 100%;
-  flex: 1;                       /* 👈 ensures it grows to full height */
+  height: 100%;
+  flex: 1;
 }
 
 .MatchTime {
-  flex: 0 0 5rem;                 /* fixed width column */
+  flex: 0 0 5rem;
   display: flex;
   justify-content: center;
   align-items: center;
   color: var(--text-color);
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: bold;
   border-right: 0.1rem solid var(--primary-color);
-  height: 100%;                   /* 👈 span the full row */
+  align-self: stretch;
+
 }
 
 .HomeTeam,
@@ -42,11 +43,11 @@
 }
 
 .HomeTeam {
-  justify-content: flex-end;          /* 👈 push home team inward */
+  justify-content: flex-end;
 }
 
 .AwayTeam {
-  justify-content: flex-start;        /* 👈 push away team inward */
+  justify-content: flex-start;
 }
 
 .TeamText {
@@ -55,7 +56,7 @@
 }
 
 .vs {
-  flex: 0 0 1rem;                 /* 👈 fixed width so it stays central */
+  flex: 0 0 1rem;
   text-align: center;
   display: flex;
   justify-content: center;
@@ -94,12 +95,18 @@
   margin: 0.3rem;
 }
 
+.Prediction-button:hover {
+  color: var(--text-primary-color);
+  background-color: var(--secondary-color);
+  cursor: pointer;
+}
+
 .Prediction-container {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  margin-left: 5rem;
-  margin-bottom: 0.5rem;
+  width: 100%;
+  margin-bottom: 1rem;
 }
 
 .Predict-button {
@@ -110,29 +117,24 @@
   font-weight: bold;
   color: var(--text-color);
   padding: 0.3rem 1rem;
+  grid-column: 2;
+  justify-self: center;
+  margin-left: 5rem;
 }
 
-.Prediction-button:hover {
-  color: var(--text-primary-color);
-  background-color: var(--secondary-color);
-  cursor: pointer;
-}
-
-.MatchStatus {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: var(--text-color);
-  border-top: 2px solid var(--text-secondary-color);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
+.predictionMessage {
+  grid-column: 3;
+  justify-self: start;
+  min-width: 5rem;
+  color: green;
+  font-size: 1rem;
+  margin-left: 1rem;
 }
 
 @media (max-width: 600px) {
   .Match-container {
     max-width: 100%;
-    height: 5rem;
+    max-height: 7rem;
     border-left: none;
     border-right: none;
   }
@@ -143,17 +145,17 @@
 
   .MatchTime {
     font-size: 0.75rem;
-    flex: 0 0 3rem;
+    flex: 0 0 3.5rem;
   }
 
   .Predictions {
     width: 1rem;
     height: 1.5rem;
-    margin: 0;
+    margin: 0.3rem;
   }
 
   .vs {
-    margin: 0.5rem;
+    margin: 0.2rem;
     font-size: 0.7rem;
   }
 
@@ -161,15 +163,6 @@
     width: 1.5rem;
     height: 1.5rem;
     margin: 0.5rem;
-  }
-
-  .Prediction-container {
-    margin-left: 3rem;
-  }
-
-  .Predict-button {
-    font-size: 0.6rem;
-    border: 0.1rem solid black;
   }
 
   .MatchStatus {
@@ -182,5 +175,21 @@
 
   .FinalScore {
     font-size: 1.2rem;
+    width: 0.5rem;
+  }
+
+  .Prediction-container {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .Predict-button {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+    margin-left: 3.5rem;
+  }
+
+  .predictionMessage {
+    font-size: 0.6rem;
   }
 }

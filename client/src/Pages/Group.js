@@ -6,6 +6,7 @@ import { gamemodeRoutes } from '../assets/GamemodeRoutes';
 import './Group.css'
 import '../assets/PopupForm.css';
 import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 export default function GroupPage() {
   
@@ -15,6 +16,8 @@ export default function GroupPage() {
   const togglePopup = () => setPopupOpen(!isPopupOpen);
   const [addPlayer, setAddPlayer] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const location = useLocation();
+  const message = location.state?.message;
 
   useEffect(() => {
     fetch(`https://footballapp-u80w.onrender.com/api/groups/${groupId}`)
@@ -72,6 +75,7 @@ export default function GroupPage() {
     <div>
       <NavigationBar />
         <h1 className='GroupPage-title'>{group?.groupName || 'Loading...'}</h1>
+        {message && <p className="success-message">{message}</p>}
         <div className='GroupPage-container'>
             <Scoreboard players={ group.members || []} handleClick={togglePopup} />
         </div>

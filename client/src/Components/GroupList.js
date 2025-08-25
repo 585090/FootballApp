@@ -3,10 +3,13 @@ import './GroupList.css';
 import '../assets/PopupForm.css';
 import { Link } from 'react-router-dom';
 import { CreateGroup } from './CreateGroup';
+import { JoinGroup } from './JoinGroup';
 
 export const GroupList = () => {
-    const [isPopupOpen, setPopupOpen] = useState(false);
-    const togglePopup = () => setPopupOpen(!isPopupOpen);
+    const [isCreateGroupPopupOpen, setCreateGroupPopupOpen] = useState(false);
+    const [isJoinGroupPopupOpen, setJoinGroupPopupOpen] = useState(false);
+    const toggleCreateGroupPopup = () => setCreateGroupPopupOpen(!isCreateGroupPopupOpen);
+    const toggleJoinGroupPopup = () => setJoinGroupPopupOpen(!isJoinGroupPopupOpen);
     const [groups, setGroups] = useState([]);
 
     useEffect(() => {
@@ -40,13 +43,23 @@ export const GroupList = () => {
                     <div className='Group-points'>{0}</div>
                 </Link>
                 ))}
-                <button className='CreateGroup-button' onClick={togglePopup}>Create group</button>
+                <div className='Group-buttons'>
+                    <button className='Group-button' onClick={toggleCreateGroupPopup}>Create group</button>
+                    <button className='Group-button' onClick={toggleJoinGroupPopup}>Join group</button>
+                </div>
             </div>
 
-            {isPopupOpen && (
-                <div className="popup-overlay" onClick={togglePopup}>
+            {isCreateGroupPopupOpen && (
+                <div className="popup-overlay" onClick={toggleCreateGroupPopup}>
                 <div className="popup-content" onClick={e => e.stopPropagation()}>
-                    <CreateGroup togglePopup={togglePopup} />
+                    <CreateGroup togglePopup={toggleCreateGroupPopup} />
+                </div>
+                </div>
+            )}
+            {isJoinGroupPopupOpen && (
+                <div className="popup-overlay" onClick={toggleJoinGroupPopup}>
+                <div className="popup-content" onClick={e => e.stopPropagation()}>
+                    <JoinGroup togglePopup={toggleJoinGroupPopup} />
                 </div>
                 </div>
             )}

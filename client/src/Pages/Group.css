@@ -39,3 +39,10 @@
     text-decoration: none;
     background-color: var(--button-color);
 }
+
+.success-message {
+    color: green;
+    text-align: center;
+    font-style: bold;
+    margin: 1rem auto;
+}

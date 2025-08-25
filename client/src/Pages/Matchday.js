@@ -62,7 +62,7 @@ export function Matchday() {
     <div>
       <NavigationBar />
       <div className="Matchday-container">
-        <MatchweekSwitcher onMatchweekChange={setcurrentMatchweek} />
+        <MatchweekSwitcher currentWeek={currentMatchweek} onMatchweekChange={setcurrentMatchweek} />
         {Object.entries(groupedMatches).map(([day, dayMatches]) => (
           <div key={day} >
               <div className="matchDay-title" >

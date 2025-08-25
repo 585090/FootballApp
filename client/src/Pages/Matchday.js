@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { NavigationBar } from "../Components/utils/NavigationBar";
 import {MatchweekSwitcher } from "../Components/utils/MatchweekSwitcher";
 import { Match } from "../Components/Match";
-import { getMatches } from "../services/APICalls";
+import { getMatches, getCurrentMatchweek } from "../services/APICalls";
 
 import "./Matchday.css"
 
@@ -26,9 +26,17 @@ function groupMatchesByDay(matches) {
 
 
 export function Matchday() {
-    const [currentMatchweek, setcurrentMatchweek] = useState(1);
+    const [currentMatchweek, setcurrentMatchweek] = useState(null);
     const [matches, setMatches] = useState([]);
     const [predictions ] = useState([]);
+
+  useEffect(() => {
+    const fetchCurrentMatchweek = async () => {
+      const week = await getCurrentMatchweek();
+      if (week) setcurrentMatchweek(week);
+    }
+    fetchCurrentMatchweek();
+  }, [])
 
   //Fetch matches
   useEffect(() => {

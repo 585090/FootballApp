@@ -143,3 +143,23 @@ exports.getMatchesByMatchweek = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch matches' });
   }
 };
+
+
+exports.getCurrentMatchweek = async (req, res) => {
+    try {
+        const { kickoffDateTime } = req.query;
+        const date = new Date(kickoffDateTime);
+
+        // Find the match with the closest kickoffDateTime >= now
+        const match = await Match.findOne({ kickoffDateTime: { $gte: date } })
+            .sort({ kickoffDateTime: 1 });
+
+        if (!match) {
+            return res.status(404).json({ error: 'No upcoming matches found' });
+        }
+
+        res.json({ matchweek: match.matchweek });
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+};

@@ -60,8 +60,8 @@ export const CreateGroup = ({ togglePopup }) => {
 
     return (
         <div>
-            <h1 className='CreateGroup-title'>Create group</h1>
-            <form className='CreateGroup-Form' onSubmit={handleSubmit}>
+            <h1 className='GroupPopup-title'>Create group</h1>
+            <form className='GroupPopup-Form' onSubmit={handleSubmit}>
                 <input
                     className='GroupName-input'
                     type="text"

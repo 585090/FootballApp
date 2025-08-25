@@ -47,15 +47,23 @@
   background-color: var(--secondary-color);
 }
 
-.CreateGroup-button {
+.Group-buttons {
+  display: flex;
   width: 100%;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  background-color: var(--primary-color);
+  gap: 4rem;
+}
+
+.Group-button {
   font-size: 1rem;
   font-weight: bold;
   background: none;
   border: none;
   padding: 1rem;
   color: var(--text-secondary-color);
-  background-color: var(--primary-color);
 }
 
 .CreateGroup-button:hover {

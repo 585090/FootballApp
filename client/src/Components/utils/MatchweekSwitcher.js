@@ -1,8 +1,9 @@
 import { useState } from "react";
 import "./MatchDateSwitcher.css";
+import { getCurrentMatchweek } from "../../services/APICalls";
 
-export function MatchweekSwitcher({ onMatchweekChange }) {
-  const [selectedWeek, setSelectedWeek] = useState(1);
+export function MatchweekSwitcher({ currentWeek, onMatchweekChange }) {
+  const [selectedWeek, setSelectedWeek] = useState(currentWeek);
 
   const handlePrevious = () => {
     setSelectedWeek((prevWeek) => {
@@ -23,12 +24,15 @@ export function MatchweekSwitcher({ onMatchweekChange }) {
   };
 
   const setToday = () => {
-    setSelectedWeek(() => {
-      const newWeek = 1;
-      onMatchweekChange?.(newWeek);
-      console.log('Matchweek', newWeek);
-      return newWeek;
-    });
+    const fetchCurrentWeek = async () => {
+      const week = await getCurrentMatchweek();
+      if (week) {
+        setSelectedWeek(week);
+        onMatchweekChange?.(week);
+        console.log('Matchweek', week);
+      }
+    };
+    fetchCurrentWeek();
   };
 
   return (

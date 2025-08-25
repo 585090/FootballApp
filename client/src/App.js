@@ -19,7 +19,7 @@ function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route 
           path="/" 
-          element={<ProtectedRoute> <Home /> </ProtectedRoute>} />
+          element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />
         <Route path="/matches" element={<MatchList />} />
         <Route 
           path="/scoreboard" 
@@ -31,8 +31,8 @@ function App() {
             path="/groupList/" 
             element={<ProtectedRoute> <GroupsPage /> </ProtectedRoute>} />
         <Route 
-          path="/dashboard" 
-          element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />
+          path="/predictionTable" //Edit this route later
+          element={<ProtectedRoute> <Home /> </ProtectedRoute>} />
         <Route 
           path="/matchday" 
           element={<ProtectedRoute> <Matchday /> </ProtectedRoute>} />

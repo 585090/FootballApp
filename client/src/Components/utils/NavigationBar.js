@@ -21,7 +21,7 @@ export const NavigationBar = () => {
         }
       </div>
       <div className="Nav-links">
-          <Link to="/dashboard" className="Links"> 
+          <Link to="/" className="Links"> 
             <HouseIcon size={32} /> 
             <br /> 
             Home 

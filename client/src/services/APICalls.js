@@ -16,6 +16,24 @@ export const getMatches = async (matchweek) => {
     }
 }
 
+export const getCurrentMatchweek = async (matchweek) => {
+    try {
+        const date = new Date();
+        const response = await fetch(`https://footballapp-u80w.onrender.com/api/matches/matchweek/?kickoffDateTime=${date.toISOString()}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.log('Error', data.error);
+            return;
+        }
+        console.log('Current matchweek is', data.matchweek);
+        return data.matchweek;
+    } 
+    catch (error) {
+        console.error("Error getting matches", error);
+    }
+}
+
 export const getPredictions = async (email, matchid) => {
     try {
     const response = await fetch(`https://footballapp-u80w.onrender.com/api/predictions/?email=${email}&matchid=${matchid}`)
@@ -25,7 +43,7 @@ export const getPredictions = async (email, matchid) => {
         console.log('Error', data.error);
         return;
     }
-    console.log('Fetched prediction for match', matchid, ':', data)
+    //console.log('Fetched prediction for match', matchid, ':', data)
     return data;
 
     } catch (error) {

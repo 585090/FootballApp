@@ -64,7 +64,7 @@
     .header-NavBar {
         flex-direction: row;   /* instead of column */
         padding: 0 1rem;
-        height: 4rem; /* optional fixed height */
+        height: 3rem; /* optional fixed height */
     }
 
     .Logo {
@@ -87,9 +87,9 @@
     .Links {
         flex: auto;
         text-align: center;
-        padding: 1rem 0.5rem;
+        padding: 0.5rem 0.5rem;
         word-break: break-word;
-        font-size: 0.75rem;
+        font-size: 0.6rem;
     }
 
     .SignOutButton {

@@ -40,7 +40,7 @@ export const GroupList = () => {
                 <Link to={`/group/${encodeURIComponent(group._id)}`} key={group._id} className='Group'>
                     <div className='Group-name'>{group.groupName}</div>
                     <div className='Group-tournament'>{group.tournament}</div>
-                    <div className='Group-points'>{0}</div>
+                    <div className='Group-points'>{'Error'}</div>
                 </Link>
                 ))}
                 <div className='Group-buttons'>

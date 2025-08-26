@@ -30,7 +30,7 @@ export const JoinGroup = ({ togglePopup }) => {
     const data = await response.json();
 
     if (!response.ok) {
-      setErrorMessage(data.error || 'Failed to add player');
+      setErrorMessage(data.error || 'Failed to join group');
       return;
     }
 

@@ -1,7 +1,7 @@
 import './Scoreboard.css';
 import { UserPlusIcon } from '@phosphor-icons/react';
 
-const Scoreboard = ({ players, handleClick }) => {
+const Scoreboard = ({ players, handleClick, admin}) => {
 
  const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
 
@@ -13,6 +13,8 @@ const Scoreboard = ({ players, handleClick }) => {
           <span className='Player-rank'>Rank</span>
           <span className='Player-name'>Player</span>
           <span className='Player-score'>Score</span>
+          {admin &&
+          <span className='Admin-settings'></span>}
         </div>
         {sortedPlayers.map((player, index) => (
           <div key={player.name} className='Player'>

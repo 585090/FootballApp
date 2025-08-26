@@ -19,14 +19,18 @@ export default function GroupPage() {
   const location = useLocation();
   const message = location.state?.message;
 
+  const [ admin, setAdmin ] = useState(false);
+  const user = localStorage.getItem('user');
+
   useEffect(() => {
     fetch(`https://footballapp-u80w.onrender.com/api/groups/${groupId}`)
         .then(response => response.json())
         .then(data => {
+        if(data.owner === user) setAdmin(true);
         setGroup(data)
     })
     .catch(error => console.error('Error fetching group:', error))
-  }, [groupId])
+  }, [groupId, user])
     
     if (!group) {
       return <div>Loading group...</div>;
@@ -66,10 +70,10 @@ export default function GroupPage() {
     }
   };
 
-  const gamemode = gamemodeRoutes[group.gamemode] || {
-      path: "/unknownMode",
-      label: "Unknown gamemode",
-  };
+    const gamemode = gamemodeRoutes[group.gamemode] || {
+        path: "/unknownMode",
+        label: "Unknown gamemode",
+    };
 
     return (
     <div>
@@ -77,7 +81,7 @@ export default function GroupPage() {
         <h1 className='GroupPage-title'>{group?.groupName || 'Loading...'}</h1>
         {message && <p className="success-message">{message}</p>}
         <div className='GroupPage-container'>
-            <Scoreboard players={ group.members || []} handleClick={togglePopup} />
+            <Scoreboard players={ group.members || []} handleClick={togglePopup} isAdmin={admin} />
         </div>
         {isPopupOpen && (
             <div className="popup-overlay" onClick={togglePopup}>

@@ -12,6 +12,7 @@ export const GroupList = () => {
     const toggleJoinGroupPopup = () => setJoinGroupPopupOpen(!isJoinGroupPopupOpen);
     const [groups, setGroups] = useState([]);
 
+
     useEffect(() => {
         const loggedInPlayer = JSON.parse(localStorage.getItem('player'));
         const playerEmail = loggedInPlayer?.email;
@@ -27,6 +28,15 @@ export const GroupList = () => {
         }).catch(error => console.error('Error fetching groups:',error))
     }, [])
 
+    const getGamemode = (gamemode) => {
+        switch(gamemode) {
+            case 1:
+                return 'Predict table'
+            case 2:
+                return 'Predict matches'
+        }
+    }
+    
     return (
         <div>
             <div className='GroupList-container'>
@@ -34,13 +44,13 @@ export const GroupList = () => {
                 <div className='GroupList-header'>
                 <span className='Group-name'>Group</span>
                 <span className='Group-tournament'>Tournament</span>
-                <span className='Group-points'>Points</span>
+                <span className='Group-points'>Gamemode</span>
                 </div>
                 {groups.map((group) => (
                 <Link to={`/group/${encodeURIComponent(group._id)}`} key={group._id} className='Group'>
                     <div className='Group-name'>{group.groupName}</div>
                     <div className='Group-tournament'>{group.tournament}</div>
-                    <div className='Group-points'>{'Error'}</div>
+                    <div className='Group-points'>{getGamemode(group.gamemode)}</div>
                 </Link>
                 ))}
                 <div className='Group-buttons'>

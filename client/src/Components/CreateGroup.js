@@ -50,7 +50,7 @@ export const CreateGroup = ({ togglePopup }) => {
         const data = await response.json();
 
         if (response.ok) {
-        navigate('/dashboard', { state: { message: 'Group created', group: data.group } });
+        navigate('/', { state: { message: 'Group created', group: data.group } });
         togglePopup(); 
         } 
         else {

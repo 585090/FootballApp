@@ -7,7 +7,7 @@ import Scoreboard from './Components/Scoreboard';
 import AuthPage from './Components/utils/AuthPage';
 import ProtectedRoute from './assets/ProtectedRoute';
 import Dashboard from './Pages/Dashboard';
-import GroupPage from './Pages/Group';
+import GroupPage from './Pages/GroupPage';
 import Account from './Pages/Account';
 import './App.css';
 import GroupsPage from './Pages/GroupsPage';

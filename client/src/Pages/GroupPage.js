@@ -3,7 +3,7 @@ import Scoreboard from '../Components/Scoreboard';
 import { NavigationBar } from '../Components/utils/NavigationBar';
 import { useParams } from 'react-router-dom';
 import { gamemodeRoutes } from '../assets/GamemodeRoutes';
-import './Group.css'
+import './GroupPage.css'
 import '../assets/PopupForm.css';
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';

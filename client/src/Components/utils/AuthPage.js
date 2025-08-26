@@ -8,7 +8,7 @@ const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ email: '', password: '', name: '' });
   const [passwordAgain, setPasswordAgain] = useState('')
-  const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [ isPasswordValid, setIsPasswordValid ] = useState(false);
   const navigate = useNavigate();
   console.log("isLogin:", isLogin)
 
@@ -97,7 +97,9 @@ const AuthPage = () => {
             />
             </>
           )}
-          <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+          <button type="submit" disabled={!isLogin && !isPasswordValid}>
+            {isLogin ? 'Login' : 'Sign Up'}
+          </button>
         </form>
         <button onClick={toggleMode} className="toggle-auth-mode">
           {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Log In'}

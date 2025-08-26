@@ -24,6 +24,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-country-flag": "^3.1.0",
     "react-dom": "^18.3.1",
+    "react-password-checklist": "^1.8.1",
     "react-responsive": "^10.0.1",
     "react-router-dom": "^7.7.0",
     "react-scripts": "^5.0.1",

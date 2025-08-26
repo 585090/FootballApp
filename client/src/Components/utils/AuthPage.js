@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AuthPage.css'
 import { NavigationBar } from './NavigationBar';
+import PasswordChecklist from "react-password-checklist"
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ email: '', password: '', name: '' });
+  const [passwordAgain, setPasswordAgain] = useState('')
+  const [ isPasswordValid, setIsPasswordValid ] = useState(false);
   const navigate = useNavigate();
   console.log("isLogin:", isLogin)
 
@@ -39,6 +42,10 @@ const AuthPage = () => {
     }
   };
 
+  const checkPasswordAgain = (e) => {
+    setPasswordAgain(e.target.value)
+  }
+
   return (
     <div>
       <NavigationBar />
@@ -71,7 +78,28 @@ const AuthPage = () => {
             onChange={handleChange}
             required
           />
-          <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
+          {!isLogin && (
+            <>
+            <input
+              type="password"
+              name="passwordAgain"
+              placeholder="Re-enter Password"
+              value={passwordAgain}
+              onChange={checkPasswordAgain}
+              required
+            />
+            <PasswordChecklist
+              rules={["minLength","specialChar","number","capital","match"]}
+              minLength={8}
+              value={form.password}
+              valueAgain={passwordAgain}
+              onChange={setIsPasswordValid}
+            />
+            </>
+          )}
+          <button type="submit" disabled={!isLogin && !isPasswordValid}>
+            {isLogin ? 'Login' : 'Sign Up'}
+          </button>
         </form>
         <button onClick={toggleMode} className="toggle-auth-mode">
           {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Log In'}

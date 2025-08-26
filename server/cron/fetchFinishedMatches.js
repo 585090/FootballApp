@@ -4,7 +4,7 @@ const Prediction = require('../models/Prediction'); // your Mongoose model
 const { matchPointLogic } = require('../utils/calculatePoints');
 const { incrementPlayerScore } = require('../controllers/PlayerController');
 
-// Run every 10 minutes
+// Run every 5 minutes
 cron.schedule('*/5 * * * *', async () => {
   try {
     const response = await fetch('https://api.football-data.org/v4/competitions/PL/matches', {
@@ -43,7 +43,7 @@ cron.schedule('*/5 * * * *', async () => {
 
         for (const pred of predictions) {
           if (!pred.score) continue;
-          if (pred.pointsAwarded) continue;
+          if (pred.pointsAwarded !== null) continue;
           
           const points = matchPointLogic(pred.score.home, pred.score.away, homeScore, awayScore);
           await incrementPlayerScore(pred.email, points);

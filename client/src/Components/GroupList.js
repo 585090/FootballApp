@@ -34,6 +34,8 @@ export const GroupList = () => {
                 return 'Predict table'
             case 2:
                 return 'Predict matches'
+            default:
+                return 'Unknown gamemode'
         }
     }
     

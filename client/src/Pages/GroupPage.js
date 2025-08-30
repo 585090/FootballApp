@@ -20,13 +20,11 @@ export default function GroupPage() {
   const [ isAdmin, setIsAdmin ] = useState(false);
   const user = JSON.parse(localStorage.getItem('player'));
   const message = location.state?.message;
-  const [ admin, setAdmin ] = useState(false);
 
   useEffect(() => {
     fetch(`https://footballapp-u80w.onrender.com/api/groups/${groupId}`)
         .then(response => response.json())
         .then(data => {
-        if(data.owner === user) setAdmin(true);
         setGroup(data)
         if (data.owner === user.email) setIsAdmin(true);
     })

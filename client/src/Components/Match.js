@@ -12,7 +12,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
 
     const now = new Date();
     const kickoff = new Date(KickOff);
-    const isPredictionOpen = showInfo && status === "not started" && now < kickoff;
+    // Removed duplicate isPredictionOpen declaration
 
     function getTime (ISODateString) {
         const date = new Date(ISODateString)
@@ -59,7 +59,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
     const isPredictionOpen = (kickoff) => { 
         const today = new Date();
         const matchDate = new Date(kickoff);
-        return today < matchDate
+        return showInfo && status === "not started" && today < matchDate;
     }
 
     useEffect(() => {
@@ -132,7 +132,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                     )}
                 </span>
             </div>
-            {showInfo && isPredictionOpen ? (
+            {isPredictionOpen ? (
                 <div className='Prediction-container'>
                     <button className='Predict-button' onClick={handlePrediction} >Predict</button>
                     <span className='predictionMessage'> {message} </span>

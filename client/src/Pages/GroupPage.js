@@ -21,15 +21,19 @@ export default function GroupPage() {
   const user = JSON.parse(localStorage.getItem('player'));
   const message = location.state?.message;
 
+  const [ admin, setAdmin ] = useState(false);
+  const user = localStorage.getItem('user');
+
   useEffect(() => {
     fetch(`https://footballapp-u80w.onrender.com/api/groups/${groupId}`)
         .then(response => response.json())
         .then(data => {
+        if(data.owner === user) setAdmin(true);
         setGroup(data)
         if (data.owner === user.email) setIsAdmin(true);
     })
     .catch(error => console.error('Error fetching group:', error))
-  }, [groupId])
+  }, [groupId, user])
     
     if (!group) {
       return <div>Loading group...</div>;
@@ -69,10 +73,10 @@ export default function GroupPage() {
     }
   };
 
-  const gamemode = gamemodeRoutes[group.gamemode] || {
-      path: "/unknownMode",
-      label: "Unknown gamemode",
-  };
+    const gamemode = gamemodeRoutes[group.gamemode] || {
+        path: "/unknownMode",
+        label: "Unknown gamemode",
+    };
 
     return (
     <div>

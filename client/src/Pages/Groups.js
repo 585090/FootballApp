@@ -2,7 +2,7 @@ import { GroupList } from "../Components/GroupList";
 import { NavigationBar } from "../Components/utils/NavigationBar";
 
 
-export default function GroupsPage() {
+export default function Groups() {
 
     return (
         <div>

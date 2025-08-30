@@ -106,7 +106,10 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   width: 100%;
-  margin-bottom: 1rem;
+  border-left: 0.1rem solid var(--primary-color);
+  padding-bottom: 1rem;
+  margin-left: 5rem;
+  height: 100%;
 }
 
 .Predict-button {
@@ -116,10 +119,10 @@
   font-size: 1rem;
   font-weight: bold;
   color: var(--text-color);
-  padding: 0.3rem 1rem;
   grid-column: 2;
   justify-self: center;
-  margin-left: 5rem;
+  padding: 0.5rem 1rem;
+  margin-right: 5rem;
 }
 
 .predictionMessage {
@@ -128,7 +131,13 @@
   min-width: 5rem;
   color: green;
   font-size: 1rem;
-  margin-left: 1rem;
+  margin-left: 2rem;
+}
+
+.Predicted-score {
+  grid-column: 2;
+  justify-content: center;
+  margin-right: 5rem;
 }
 
 @media (max-width: 600px) {
@@ -191,5 +200,10 @@
 
   .predictionMessage {
     font-size: 0.6rem;
+  }
+
+  .Predicted-score {
+    font-size: 0.6rem;
+    margin-left: 3.5rem;
   }
 }

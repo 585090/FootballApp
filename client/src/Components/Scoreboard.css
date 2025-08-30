@@ -49,6 +49,28 @@
   padding-right: 0.75rem;
 }
 
+.Player-score {
+  border-right: none;
+}
+
+.adminSettings {
+  display: flex;
+  width: 1.5rem;
+  align-items: center;
+  text-align: center;
+  background: none;
+  color: var(--text-secondary-color);
+  border: none;
+  appearance: none;
+}
+
+.adminOption {
+  background-color: var(--primary-color);
+  color: var(--text-secondary-color);
+  padding: 1rem;
+  border: none;
+}
+
 .Scoreboard-AddPlayerButton {
   display: flex;
   background: none;

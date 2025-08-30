@@ -134,7 +134,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                 ) 
                 : (
                     <div className='Prediction-container'>
-                        <span className='Predicted-score'>Predicted: {homeScore} - {awayScore} </span>
+                        <span className='Predicted-score'>Your Prediction: {homeScore} - {awayScore} </span>
                         <span className='predictionMessage'>points earned: {predictionScore}</span>
                     </div>
                 )

@@ -17,6 +17,8 @@ export default function GroupPage() {
   const [addPlayer, setAddPlayer] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const location = useLocation();
+  const [ isAdmin, setIsAdmin ] = useState(false);
+  const user = JSON.parse(localStorage.getItem('player'));
   const message = location.state?.message;
 
   const [ admin, setAdmin ] = useState(false);
@@ -28,6 +30,7 @@ export default function GroupPage() {
         .then(data => {
         if(data.owner === user) setAdmin(true);
         setGroup(data)
+        if (data.owner === user.email) setIsAdmin(true);
     })
     .catch(error => console.error('Error fetching group:', error))
   }, [groupId, user])
@@ -81,7 +84,7 @@ export default function GroupPage() {
         <h1 className='GroupPage-title'>{group?.groupName || 'Loading...'}</h1>
         {message && <p className="success-message">{message}</p>}
         <div className='GroupPage-container'>
-            <Scoreboard players={ group.members || []} handleClick={togglePopup} isAdmin={admin} />
+            <Scoreboard players={ group.members || []} handleClick={togglePopup} isAdmin={isAdmin}/>
         </div>
         {isPopupOpen && (
             <div className="popup-overlay" onClick={togglePopup}>

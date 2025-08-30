@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './Match.css';
-import { storePredictions, getPredictions, updatePlayerScore } from '../services/APICalls';
+import { storePredictions, getPredictions } from '../services/APICalls';
 
 export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, homeCrest, awayCrest }) => {
     const [homeScore, setHomeScore] = useState(null);
@@ -8,32 +8,17 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
     const [teams, setTeams] = useState([]);
     const [ message, setMessage ] = useState('');
     const [competition] = useState('PL')
+    const [predictionScore, setPredictionScore] = useState(null);
+
+    const now = new Date();
+    const kickoff = new Date(KickOff);
+    const isPredictionOpen = showInfo && status === "not started" && now < kickoff;
 
     function getTime (ISODateString) {
         const date = new Date(ISODateString)
         const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
         return time;
     }
-
-    useEffect(() => {
-        const validStatuses = ['FINISHED', 'IN_PLAY', 'PAUSED'];
-        const handleScoreUpdate = async () => {
-            if (validStatuses.includes(status)) {
-                const player = JSON.parse(localStorage.getItem('player'));
-                if (!player?.email) return;
-
-                const prediction = await getPredictions(player.email, matchid);
-
-                if (prediction?.score) {
-                    const predictedScore = prediction.score; // stored format "2-1"
-                    const actualScore = `${score.home}-${score.away}`;
-                    await updatePlayerScore(player.email, predictedScore, actualScore);
-                }
-            }
-        };
-
-        handleScoreUpdate();
-    }, [status, matchid, score]);
 
     const handlePrediction = async () => {
         try {
@@ -89,6 +74,8 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                 if (prediction?.score) {
                     setHomeScore(prediction.score.home);
                     setAwayScore(prediction.score.away);
+                    setPredictionScore(prediction.pointsAwarded);
+
                 }
             } catch (error) {
                 console.error('Error getting prediction:', error);
@@ -145,13 +132,20 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                     )}
                 </span>
             </div>
-            {showInfo && status === "not started" && (
+            {showInfo && isPredictionOpen ? (
                 <div className='Prediction-container'>
                     <button className='Predict-button' onClick={handlePrediction} >Predict</button>
                     <span className='predictionMessage'> {message} </span>
                 </div>
 
-            )}
+                ) 
+                : (
+                    <div className='Prediction-container'>
+                        <span className='Predicted-score'>Predicted: {homeScore} - {awayScore} </span>
+                        <span className='predictionMessage'>points earned: {predictionScore}</span>
+                    </div>
+                )
+            }
         </div>
     );
 }

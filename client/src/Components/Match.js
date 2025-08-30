@@ -56,6 +56,12 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
         getTeams();
     }, [competition])
 
+    const isPredictionOpen = (kickoff) => { 
+        const today = new Date();
+        const matchDate = new Date(kickoff);
+        return today < matchDate
+    }
+
     useEffect(() => {
         const fetchPrediction = async () => {
             try {
@@ -69,6 +75,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                     setHomeScore(prediction.score.home);
                     setAwayScore(prediction.score.away);
                     setPredictionScore(prediction.pointsAwarded);
+
                 }
             } catch (error) {
                 console.error('Error getting prediction:', error);
@@ -88,7 +95,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                     <p className='TeamText'>{HT}</p>
                     )}
                     <img className='teamLogo' src={getTeamCrest(homeCrest)} alt='' />
-                        {status !== 'not started' ? (
+                        {!isPredictionOpen(KickOff) ? (
                             <p className="FinalScore">{score?.home ?? homeScore ?? '-'}</p>
                         ) : (
                             showInfo && (
@@ -105,7 +112,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                 </span>
                 <div className="vs"> <p>vs</p></div>
                 <span className="AwayTeam">
-                    {status !== 'not started' ? (
+                    {!isPredictionOpen(KickOff) ? (
                         <p className="FinalScore">{score?.away ?? awayScore ?? '-'}</p>
                     ) : (
                         showInfo && (

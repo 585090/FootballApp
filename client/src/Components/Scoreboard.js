@@ -2,6 +2,7 @@ import './Scoreboard.css';
 import { useState } from 'react';
 import { UserPlusIcon } from '@phosphor-icons/react';
 
+
 const Scoreboard = ({ players, handleClick, isAdmin }) => {
 
     const sortedPlayers = [...players].sort((a, b) => b.points - a.points);

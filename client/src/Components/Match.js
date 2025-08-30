@@ -128,20 +128,19 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                     )}
                 </span>
             </div>
-            {isPredictionOpen(KickOff) ? (
-                <div className='Prediction-container'>
-                    <button className='Predict-button' onClick={handlePrediction} >Predict</button>
-                    <span className='predictionMessage'> {message} </span>
-                </div>
-
-                ) 
-                : (
+            {showInfo ? (
+                isPredictionOpen(KickOff) ? (
                     <div className='Prediction-container'>
-                        <span className='Predicted-score'>Predicted: {homeScore} - {awayScore} </span>
+                        <button className='Predict-button' onClick={handlePrediction}>Predict</button>
+                        <span className='predictionMessage'>{message}</span>
+                    </div>
+                ) : (
+                    <div className='Prediction-container'>
+                        <span className='Predicted-score'>Predicted: {homeScore} - {awayScore}</span>
                         <span className='predictionMessage'>points earned: {predictionScore}</span>
                     </div>
                 )
-            }
+            ) : null}
         </div>
     );
 }

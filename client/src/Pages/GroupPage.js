@@ -20,9 +20,7 @@ export default function GroupPage() {
   const [ isAdmin, setIsAdmin ] = useState(false);
   const user = JSON.parse(localStorage.getItem('player'));
   const message = location.state?.message;
-
   const [ admin, setAdmin ] = useState(false);
-  const user = localStorage.getItem('user');
 
   useEffect(() => {
     fetch(`https://footballapp-u80w.onrender.com/api/groups/${groupId}`)

@@ -10,10 +10,6 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
     const [competition] = useState('PL')
     const [predictionScore, setPredictionScore] = useState(null);
 
-    const now = new Date();
-    const kickoff = new Date(KickOff);
-    const isPredictionOpen = showInfo && status === "not started" && now < kickoff;
-
     function getTime (ISODateString) {
         const date = new Date(ISODateString)
         const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -60,7 +56,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
         const today = new Date();
         const matchDate = new Date(kickoff);
         return today < matchDate
-    }
+    } 
 
     useEffect(() => {
         const fetchPrediction = async () => {
@@ -132,7 +128,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                     )}
                 </span>
             </div>
-            {showInfo && isPredictionOpen ? (
+            {isPredictionOpen(KickOff) ? (
                 <div className='Prediction-container'>
                     <button className='Predict-button' onClick={handlePrediction} >Predict</button>
                     <span className='predictionMessage'> {message} </span>

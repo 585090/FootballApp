@@ -188,22 +188,25 @@
   }
 
   .Prediction-container {
-    width: 100%;
-    margin-top: 0.5rem;
+    margin-left: 3.5rem;
+    width: 85%;
   }
 
   .Predict-button {
     font-size: 0.6rem;
     padding: 0.2rem 0.5rem;
-    margin-left: 3.5rem;
+    margin-top: 0.5rem;
+    margin-right: 0;
   }
 
   .predictionMessage {
     font-size: 0.6rem;
+    margin-left: 0;
   }
 
   .Predicted-score {
     font-size: 0.6rem;
+    margin-right: 3rem;
     margin-left: 3.5rem;
   }
 }

@@ -140,7 +140,7 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
                         <span className='predictionMessage'>points earned: {predictionScore}</span>
                     </div>
                 )
-            ) : null}
+            ) : null}   
         </div>
     );
 }

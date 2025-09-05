@@ -136,3 +136,30 @@ exports.addPlayerToGroup = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+exports.removePlayerFromGroup = async (req, res) => {
+  try {
+    const { groupId } = req.body;
+    const { email } = req.body;
+    console.log("Removing player:", email, "from group:", groupId);
+    const player = await Player.findOne({ email });
+    if (!player) return res.status(404).json({ error: 'Player not found' });
+
+    const group = await Group.findById(groupId);
+    if (!group) return res.status(404).json({ error: 'Group not found' });
+
+    await Player.updateOne(
+      { _id: player._id },
+      { $pull: { groups: group._id } }
+    );
+
+    await Group.updateOne(
+      { _id: group._id },
+      { $pull: { players: player._id } }
+    );
+
+  } catch (err) {
+    console.error('❌ Error removing player from group:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+}

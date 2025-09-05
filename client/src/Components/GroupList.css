@@ -5,7 +5,7 @@
   flex-direction: column;
   align-items: center;
   margin: auto;
-  margin-top: 2rem;
+  margin-top: 1rem;
   border: 0.2rem solid var(--primary-color);
   border-radius: 10px;
   width: 40rem;
@@ -14,7 +14,7 @@
 .GroupList-title {
   width: 100%;
   text-align: center;
-  padding: 1rem 0 1rem 0;
+  padding: 0.5rem 0 1rem 0;
   margin: auto;
   border-bottom: 1px solid var(--primary-color);
   color: var(--text-color);
@@ -84,10 +84,5 @@
     .Group-points {
       font-size: 0.7rem;
       padding: 0.5rem 0.3rem 0.5rem 0rem;
-    }
-
-    .Group-name,
-    .Group-points {
-      flex: 0.4;
     }
   }

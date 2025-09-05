@@ -1,12 +1,38 @@
 import './Scoreboard.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UserPlusIcon } from '@phosphor-icons/react';
 
 
-const Scoreboard = ({ players, handleClick, isAdmin }) => {
+const Scoreboard = ({ players, handleClick, isAdmin, groupID }) => {
 
     const sortedPlayers = [...players].sort((a, b) => b.points - a.points);
     const [selectedValue, setSelectedValue] = useState('');
+
+    useEffect(() => {
+        if (selectedValue) {
+            const removePlayer = async () => {
+                const playerToRemove = sortedPlayers[selectedValue];
+                console.log(playerToRemove.email);
+                console.log(groupID);
+                if (!playerToRemove) return;
+                //const response = await fetch('https://footballapp-u80w.onrender.com/api/admin/removePlayer', {
+                const response = await fetch(`http://localhost:5000/api/groups/${groupID}/removePlayer`, {
+                    method: 'POST',
+                    headers: { 'Content-type': 'application/json' },
+                    body: JSON.stringify({ email: playerToRemove.email, groupId: groupID })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert(data.error || 'Something went wrong');
+                }
+            };
+            removePlayer();
+        }
+    }, [selectedValue]);
+
+
 
     return (
       <div>
@@ -26,8 +52,8 @@ const Scoreboard = ({ players, handleClick, isAdmin }) => {
               {isAdmin && 
                 <>
                   <select className='adminSettings' value={selectedValue} onChange={(event) => setSelectedValue(event.target.value)}>
-                    <option value="" disabled> ⋮ </option>
-                    <option className='adminOption' value="remove">❌</option>
+                    <option value="" className='Settings-icon' disabled> ⋮ </option>
+                    <option className='adminOption' value={index} >❌</option>
                     <option className='adminOption' value="promote">Promote to admin</option>
                   </select>
                 </>

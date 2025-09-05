@@ -14,7 +14,7 @@ const Scoreboard = ({ players, handleClick, isAdmin, groupID }) => {
           alert("Admins cannot leave the group. Please promote another member to admin or delete the group.");
           return;
         }
-        
+
         //const response = await fetch('https://footballapp-u80w.onrender.com/api/admin/removePlayer', {
         const response = await fetch(`http://localhost:5000/api/groups/${groupID}/removePlayer`, {
           method: 'POST',
@@ -67,7 +67,7 @@ const Scoreboard = ({ players, handleClick, isAdmin, groupID }) => {
             };
             removePlayer();
         }
-    }, [selectedValue]);
+    }, [selectedValue, sortedPlayers, groupID]);
 
 
 

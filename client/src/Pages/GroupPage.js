@@ -78,7 +78,10 @@ export default function GroupPage() {
     <div>
       <NavigationBar />
         <h1 className='GroupPage-title'>{group?.groupName || 'Loading...'}</h1>
-        {message && <p className="success-message">{message}</p>}
+        {message ? (
+          <p className="success-message">{message}</p>) 
+          : <span className='GroupPage-subtitle'>Access code: {groupId}</span>
+        }
         <div className='GroupPage-container'>
             <Scoreboard players={ group.members || []} handleClick={togglePopup} isAdmin={isAdmin} groupID={groupId}/>
         </div>

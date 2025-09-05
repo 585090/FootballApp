@@ -163,3 +163,17 @@ exports.removePlayerFromGroup = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+exports.resetPlayerScores = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    await Player.updateMany(
+      { groups: groupId },
+      { $set: { points: 0 } }
+    );
+    res.json({ message: 'Player scores reset to 0' });
+  } catch (err) {
+    console.error('❌ Error resetting player scores:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

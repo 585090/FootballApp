@@ -7,5 +7,6 @@ router.get('/:id', controller.getGroupById);
 router.post('/createGroup', controller.createGroup);
 router.post('/:groupId/addPlayer', controller.addPlayerToGroup);
 router.post('/:groupId/removePlayer', controller.removePlayerFromGroup);
+router.post('/:groupId/resetPlayerScores', controller.resetPlayerScores);
 
 module.exports = router;

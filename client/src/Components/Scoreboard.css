@@ -11,14 +11,23 @@
   width: 30rem;
 }
 
+.ScoreboardTitle-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid white;
+  width: 100%;
+}
+
 .ScoreboardTitle {
   width: 100%;
   text-align: center;
   padding: 1rem 0 1rem 0;
   margin: auto;
-  border-bottom: 1px solid white;
   color: var(--text-secondary-color);
+  margin-left: 1.5rem;
 }
+
 
 .Player, .Scoreboard-header {
   display: flex;
@@ -53,7 +62,7 @@
   border-right: none;
 }
 
-.adminSettings {
+.adminSettings, .GroupSettings {
   display: flex;
   width: 1.5rem;
   align-items: center;
@@ -64,10 +73,15 @@
   appearance: none;
 }
 
-.adminOption {
+.GroupSettings {
+  font-size: 1.5rem;
+}
+
+.adminOption, .SettingsOption {
   background-color: var(--primary-color);
   color: var(--text-secondary-color);
   padding: 1rem;
+  font-size: 1rem;
   border: none;
 }
 

@@ -80,7 +80,7 @@ export default function GroupPage() {
         <h1 className='GroupPage-title'>{group?.groupName || 'Loading...'}</h1>
         {message && <p className="success-message">{message}</p>}
         <div className='GroupPage-container'>
-            <Scoreboard players={ group.members || []} handleClick={togglePopup} isAdmin={isAdmin}/>
+            <Scoreboard players={ group.members || []} handleClick={togglePopup} isAdmin={isAdmin} groupID={groupId}/>
         </div>
         {isPopupOpen && (
             <div className="popup-overlay" onClick={togglePopup}>

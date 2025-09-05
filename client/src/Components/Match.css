@@ -43,10 +43,12 @@
 }
 
 .HomeTeam {
+  margin-left: 0.5rem;
   justify-content: flex-end;
 }
 
 .AwayTeam {
+  margin-right: 0.5rem;
   justify-content: flex-start;
 }
 
@@ -195,8 +197,8 @@
   .Predict-button {
     font-size: 0.6rem;
     padding: 0.2rem 0.5rem;
-    margin-top: 0.5rem;
-    margin-right: 0;
+    margin-right: 3rem;
+    margin-left: 3rem;
   }
 
   .predictionMessage {

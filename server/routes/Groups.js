@@ -6,5 +6,6 @@ router.get('/player/:email', controller.getGroupsByPlayerEmail);
 router.get('/:id', controller.getGroupById);
 router.post('/createGroup', controller.createGroup);
 router.post('/:groupId/addPlayer', controller.addPlayerToGroup);
+router.post('/:groupId/removePlayer', controller.removePlayerFromGroup);
 
 module.exports = router;

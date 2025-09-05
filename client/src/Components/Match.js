@@ -55,7 +55,8 @@ export const Match = ({ matchid, HT, AT, KickOff, showInfo=true, score, status, 
     const isPredictionOpen = (kickoff) => { 
         const today = new Date();
         const matchDate = new Date(kickoff);
-        return today < matchDate
+        const closeTime = new Date(matchDate.getTime() - 60 * 60 * 1000);
+        return today < closeTime
     } 
 
     useEffect(() => {

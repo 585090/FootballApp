@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Expo Router does client-side routing, so every URL must serve index.html.
+# Without this, refreshing /profile or hitting a deep link 404s.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

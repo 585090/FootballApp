@@ -8,6 +8,10 @@ const PredictionSchema = new mongoose.Schema({
     home: { type: Number, default: null },
     away: { type: Number, default: null },
   },
+  firstGoalScorer: {
+    playerId: { type: Number, default: null },
+    playerName: { type: String, default: null },
+  },
   pointsAwarded: { type: Number, default: null },
   gamemode: { type: String }, // e.g., "classic" or "fantasy"
 

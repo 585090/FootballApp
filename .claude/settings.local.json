@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --prefix mobile install expo-router react-native-safe-area-context react-native-screens expo-linking expo-constants expo-secure-store react-native-gesture-handler react-native-reanimated @react-native-async-storage/async-storage)",
+      "Bash(npx expo *)",
+      "Bash(rm mobile/App.tsx mobile/index.ts)",
+      "Read(//c/c/Users/simen.hauge/Documents/privat/prosjekter/FootballApp/**)",
+      "Bash(npx tsc *)",
+      "Bash(npm install *)",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

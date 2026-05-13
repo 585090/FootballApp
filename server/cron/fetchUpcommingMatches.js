@@ -1,69 +1,68 @@
 const cron = require('node-cron');
-const axios = require('axios');
-const { getDb } = require('../db');
-require('dotenv').config();
+const Match = require('../models/Match');
+const { getMatches, COMPETITIONS_TO_TRACK, isRateLimit } = require('../utils/footballDataClient');
+const { mapApiMatchToDoc } = require('../utils/matchMapper');
 
-const API_TOKEN = process.env.FOOTBALL_API_TOKEN;
-const API_URL = 'https://api.football-data.org/v4/competitions/PL/matches';
-
-async function fetchAndStoreMatchesForDate(dateStr) {
-  const db = getDb();
-  const collection = db.collection('matches');
-
-  // Check if matches already exist for the day
+async function fetchAndStoreForCompetitionAndDate(competition, dateStr) {
   const startOfDay = new Date(`${dateStr}T00:00:00.000Z`);
   const endOfDay = new Date(`${dateStr}T23:59:59.999Z`);
 
-  const exists = await collection.findOne({
+  const exists = await Match.findOne({
+    competition,
     kickoffDateTime: { $gte: startOfDay, $lte: endOfDay },
-    competition: 'PL',
   });
 
   if (exists) {
-    console.log(`✅ Matches already exist for ${dateStr}`);
+    console.log(`[upcoming-cron] ✅ ${competition} matches already cached for ${dateStr}`);
     return;
   }
 
+  let data;
   try {
-    const response = await axios.get(API_URL, {
-      headers: { 'X-Auth-Token': API_TOKEN },
-      params: { dateFrom: dateStr, dateTo: dateStr }
-    });
-
-    const now = new Date();
-    const matches = response.data.matches.map((match) => ({
-      matchId: match.id,
-      competition: 'PL',
-      homeTeam: match.homeTeam.name,
-      awayTeam: match.awayTeam.name,
-      score: match.score.fullTime,
-      kickoffDateTime: new Date(match.utcDate),
-      status: now < new Date(match.utcDate) ? 'not started' : 'finished',
-      fetchedAt: new Date()
-    }));
-
-    if (matches.length > 0) {
-      await collection.insertMany(matches);
-      console.log(`📥 Stored ${matches.length} matches for ${dateStr}`);
-    } else {
-      console.log(`ℹ️ No matches found for ${dateStr}`);
+    data = await getMatches(competition, { dateFrom: dateStr, dateTo: dateStr });
+  } catch (err) {
+    if (isRateLimit(err)) {
+      console.warn(`[upcoming-cron] rate limit hit for ${competition} ${dateStr}, skipping`);
+      return;
     }
+    console.error(`[upcoming-cron] error fetching ${competition} ${dateStr}:`, err.message);
+    return;
+  }
 
-  } catch (error) {
-    console.error(`❌ Error fetching matches for ${dateStr}:`, error.message);
+  const apiMatches = data.matches || [];
+  if (apiMatches.length === 0) {
+    console.log(`[upcoming-cron] ℹ️ no ${competition} matches on ${dateStr}`);
+    return;
+  }
+
+  const docs = apiMatches.map((m) => mapApiMatchToDoc(m, competition));
+  try {
+    await Match.insertMany(docs, { ordered: false });
+    console.log(`[upcoming-cron] 📥 stored ${docs.length} ${competition} matches for ${dateStr}`);
+  } catch (err) {
+    // Duplicate-key errors are fine — another worker raced us. Log and continue.
+    if (err.code === 11000 || err.writeErrors) {
+      console.log(`[upcoming-cron] partial duplicate-key on ${competition} ${dateStr} — continuing`);
+    } else {
+      console.error(`[upcoming-cron] insertMany failed for ${competition} ${dateStr}:`, err.message);
+    }
   }
 }
 
-// Schedule: every night at 2:00 AM
-cron.schedule('0 12 * * 0', async () => {
-  console.log('🔁 Running daily match fetch...');
+// Every day at 02:00 (server time). Fetches the next 7 days of fixtures
+// for each tracked competition.
+cron.schedule('0 2 * * *', async () => {
+  console.log(`🔁 Upcoming-match cron starting for ${COMPETITIONS_TO_TRACK.join(', ')}`);
 
   for (let i = 0; i <= 7; i++) {
     const date = new Date();
-    date.setDate(date.getDate() + i);
+    date.setUTCDate(date.getUTCDate() + i);
     const dateStr = date.toISOString().split('T')[0];
-    await fetchAndStoreMatchesForDate(dateStr);
+
+    for (const competition of COMPETITIONS_TO_TRACK) {
+      await fetchAndStoreForCompetitionAndDate(competition, dateStr);
+    }
   }
 
-  console.log('✅ Match fetch job complete');
+  console.log('✅ Upcoming-match cron complete');
 });

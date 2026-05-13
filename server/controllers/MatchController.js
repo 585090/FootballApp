@@ -1,5 +1,31 @@
-const axios = require('axios');
 const Match = require('../models/Match');
+const { getMatches, isRateLimit } = require('../utils/footballDataClient');
+const { mapApiMatchToDoc } = require('../utils/matchMapper');
+
+async function upsertNewMatches(apiMatches, competition) {
+  if (!apiMatches?.length) return [];
+  const ids = apiMatches.map((m) => m.id);
+  const existing = await Match.find({ matchId: { $in: ids } }, { matchId: 1 }).lean();
+  const existingIds = new Set(existing.map((m) => m.matchId));
+
+  const newDocs = apiMatches
+    .filter((m) => !existingIds.has(m.id))
+    .map((m) => mapApiMatchToDoc(m, competition));
+
+  if (newDocs.length > 0) {
+    await Match.insertMany(newDocs, { ordered: false });
+    console.log(`💾 Saved ${newDocs.length} new ${competition} matches`);
+  }
+  return newDocs;
+}
+
+function handleApiError(err, res) {
+  if (isRateLimit(err)) {
+    return res.status(429).json({ error: 'Rate limit exceeded. Try again later.' });
+  }
+  console.error('❌ Error fetching matches:', err.message);
+  return res.status(500).json({ error: 'Failed to fetch matches' });
+}
 
 exports.getMatchesByDate = async (req, res) => {
   const { date, competition = 'PL' } = req.query;
@@ -10,68 +36,20 @@ exports.getMatchesByDate = async (req, res) => {
     const endOfDay = new Date(`${date}T23:59:59.999Z`);
 
     const cached = await Match.find({
-      kickoffDateTime: { $gte: startOfDay, $lte: endOfDay },
       competition,
+      kickoffDateTime: { $gte: startOfDay, $lte: endOfDay },
     });
 
     if (cached.length > 0) {
-      console.log(`✅ Serving ${cached.length} matches from cache`);
+      console.log(`✅ Serving ${cached.length} ${competition} matches from cache (by-date ${date})`);
       return res.json(cached);
     }
 
-    // fetch from API
-    const API_URL = `https://api.football-data.org/v4/competitions/${competition}/matches`;
-    const API_TOKEN = process.env.FOOTBALL_API_TOKEN;
-
-    const response = await axios.get(API_URL, {
-      headers: { 'X-Auth-Token': API_TOKEN },
-      params: { dateFrom: date, dateTo: date },
-    });
-
-    // get IDs already in DB
-    const existing = await Match.find({}, { matchId: 1 }).lean();
-    const existingIds = new Set(existing.map(m => m.matchId));
-
-    const now = new Date();
-    const newMatches = response.data.matches
-      .filter(m => !existingIds.has(m.id))
-      .map(m => {
-        const kickoff = new Date(m.utcDate);
-        const endTime = new Date(kickoff.getTime() + 2 * 60 * 60 * 1000);
-
-        let status;
-        if (now < kickoff) status = 'not started';
-        else if (now >= kickoff && now < endTime) status = 'ongoing';
-        else status = 'finished';
-
-        return {
-          matchId: m.id,
-          competition,
-          homeTeam: m.homeTeam.name,
-          awayTeam: m.awayTeam.name,
-          score: {
-            home: m.score.fullTime.home,
-            away: m.score.fullTime.away,
-          },
-          kickoffDateTime: kickoff,
-          matchweek: m.matchday,
-          status,
-          fetchedAt: now,
-        };
-      });
-
-    if (newMatches.length > 0) {
-      await Match.insertMany(newMatches);
-      console.log(`💾 Saved ${newMatches.length} new matches`);
-    }
-
+    const data = await getMatches(competition, { dateFrom: date, dateTo: date });
+    const newMatches = await upsertNewMatches(data.matches, competition);
     res.json([...cached, ...newMatches]);
   } catch (err) {
-    if (err.response?.status === 429) {
-      return res.status(429).json({ error: 'Rate limit exceeded. Try again later.' });
-    }
-    console.error('❌ Error fetching matches:', err.message);
-    res.status(500).json({ error: 'Failed to fetch matches' });
+    return handleApiError(err, res);
   }
 };
 
@@ -81,85 +59,148 @@ exports.getMatchesByMatchweek = async (req, res) => {
 
   try {
     const mwInt = parseInt(matchweek, 10);
-
     const cached = await Match.find({ competition, matchweek: mwInt });
 
     if (cached.length > 0) {
-      console.log(`✅ Serving ${cached.length} matches from cache`);
+      console.log(`✅ Serving ${cached.length} ${competition} matches from cache (mw ${mwInt})`);
       return res.json(cached);
     }
 
-    // fetch from API
-    const API_URL = `https://api.football-data.org/v4/competitions/${competition}/matches`;
-    const API_TOKEN = process.env.FOOTBALL_API_TOKEN;
-
-    const response = await axios.get(API_URL, {
-      headers: { 'X-Auth-Token': API_TOKEN },
-      params: { matchday: mwInt },
-    });
-
-    const existing = await Match.find({}, { matchId: 1 }).lean();
-    const existingIds = new Set(existing.map(m => m.matchId));
-
-    const now = new Date();
-    const newMatches = response.data.matches
-      .filter(m => !existingIds.has(m.id))
-      .map(m => {
-        const kickoff = new Date(m.utcDate);
-        const endTime = new Date(kickoff.getTime() + 2 * 60 * 60 * 1000);
-
-        let status;
-        if (now < kickoff) status = 'not started';
-        else if (now >= kickoff && now < endTime) status = 'ongoing';
-        else status = 'finished';
-
-        return {
-          matchId: m.id,
-          competition,
-          homeTeam: m.homeTeam.shortName || m.homeTeam.name,
-          awayTeam: m.awayTeam.shortName || m.awayTeam.name,
-          score: {
-            home: m.score.fullTime.home,
-            away: m.score.fullTime.away,
-          },
-          kickoffDateTime: kickoff,
-          matchweek: m.matchday,
-          status,
-          fetchedAt: now,
-        };
-      });
-
-    if (newMatches.length > 0) {
-      await Match.insertMany(newMatches);
-      console.log(`💾 Saved ${newMatches.length} new matches`);
-    }
-
+    const data = await getMatches(competition, { matchday: mwInt });
+    const newMatches = await upsertNewMatches(data.matches, competition);
     res.json([...cached, ...newMatches]);
   } catch (err) {
-    if (err.response?.status === 429) {
-      return res.status(429).json({ error: 'Rate limit exceeded. Try again later.' });
-    }
-    console.error('❌ Error fetching matches:', err.message);
-    res.status(500).json({ error: 'Failed to fetch matches' });
+    return handleApiError(err, res);
   }
 };
 
+exports.getMatchesByStage = async (req, res) => {
+  const { competition = 'WC', stage } = req.query;
+  if (!stage) return res.status(400).json({ error: 'Missing stage' });
+
+  try {
+    const cached = await Match.find({ competition, stage });
+    if (cached.length > 0) {
+      console.log(`✅ Serving ${cached.length} ${competition} matches from cache (stage ${stage})`);
+      return res.json(cached);
+    }
+
+    const data = await getMatches(competition, { stage });
+    const newMatches = await upsertNewMatches(data.matches, competition);
+    res.json([...cached, ...newMatches]);
+  } catch (err) {
+    return handleApiError(err, res);
+  }
+};
+
+// Refresh the local cache for a competition by pulling everything from
+// football-data.org and upserting any not-yet-stored matches. Used as a
+// fallback when /next or /upcoming finds an empty cache so tournament
+// competitions (WC, CL) work without a manual seed step.
+async function refreshCompetitionCache(competition) {
+  try {
+    const data = await getMatches(competition);
+    const apiMatches = (data.matches || []).filter((m) =>
+      ['SCHEDULED', 'TIMED', 'IN_PLAY', 'PAUSED', 'FINISHED'].includes(m.status),
+    );
+    if (apiMatches.length === 0) return;
+
+    const ids = apiMatches.map((m) => m.id);
+    const existing = await Match.find({ matchId: { $in: ids } }, { matchId: 1 }).lean();
+    const existingIds = new Set(existing.map((m) => m.matchId));
+
+    const newDocs = apiMatches
+      .filter((m) => !existingIds.has(m.id))
+      .map((m) => mapApiMatchToDoc(m, competition));
+
+    if (newDocs.length > 0) {
+      await Match.insertMany(newDocs, { ordered: false });
+      console.log(`💾 Cache refresh: saved ${newDocs.length} new ${competition} matches`);
+    }
+  } catch (err) {
+    console.error(`⚠️ refreshCompetitionCache(${competition}) failed:`, err.message);
+  }
+}
+
+// Next upcoming (not-started) match for a competition. Single doc.
+exports.getNextMatch = async (req, res) => {
+  const { competition = 'PL' } = req.query;
+  try {
+    const findUpcoming = () =>
+      Match.findOne({
+        competition,
+        status: 'not started',
+        kickoffDateTime: { $gte: new Date() },
+      }).sort({ kickoffDateTime: 1 });
+
+    let match = await findUpcoming();
+    if (!match) {
+      await refreshCompetitionCache(competition);
+      match = await findUpcoming();
+    }
+    if (!match) return res.status(404).json({ error: 'No upcoming matches' });
+    res.json(match);
+  } catch (err) {
+    console.error('❌ getNextMatch error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch next match' });
+  }
+};
+
+// Upcoming + live matches for a competition, soonest first. Used by Matchday list.
+exports.getUpcomingMatches = async (req, res) => {
+  const { competition = 'PL' } = req.query;
+  const limit = Math.min(parseInt(req.query.limit, 10) || 20, 100);
+  try {
+    const findUpcoming = () =>
+      Match.find({
+        competition,
+        status: { $in: ['not started', 'ongoing'] },
+      })
+        .sort({ kickoffDateTime: 1 })
+        .limit(limit);
+
+    let matches = await findUpcoming();
+    if (matches.length === 0) {
+      await refreshCompetitionCache(competition);
+      matches = await findUpcoming();
+    }
+    res.json(matches);
+  } catch (err) {
+    console.error('❌ getUpcomingMatches error:', err.message);
+    res.status(500).json({ error: 'Failed to fetch upcoming matches' });
+  }
+};
+
+exports.getMatchById = async (req, res) => {
+  try {
+    const matchId = parseInt(req.params.matchId, 10);
+    if (!matchId) return res.status(400).json({ error: 'matchId required' });
+    const match = await Match.findOne({ matchId });
+    if (!match) return res.status(404).json({ error: 'Match not found' });
+    res.json(match);
+  } catch (err) {
+    console.error('❌ Error fetching match by id:', err);
+    res.status(500).json({ error: 'Failed to fetch match' });
+  }
+};
 
 exports.getCurrentMatchweek = async (req, res) => {
-    try {
-        const { kickoffDateTime } = req.query;
-        const date = new Date(kickoffDateTime);
+  try {
+    const { kickoffDateTime, competition = 'PL' } = req.query;
+    const date = new Date(kickoffDateTime);
 
-        // Find the match with the closest kickoffDateTime >= now
-        const match = await Match.findOne({ kickoffDateTime: { $gte: date } })
-            .sort({ kickoffDateTime: 1 });
+    const match = await Match.findOne({
+      competition,
+      kickoffDateTime: { $gte: date },
+      matchweek: { $ne: null },
+    }).sort({ kickoffDateTime: 1 });
 
-        if (!match) {
-            return res.status(404).json({ error: 'No upcoming matches found' });
-        }
-
-        res.json({ matchweek: match.matchweek });
-    } catch (err) {
-        res.status(500).json({ error: 'Server error' });
+    if (!match) {
+      return res.status(404).json({ error: 'No upcoming matches found' });
     }
+    res.json({ matchweek: match.matchweek });
+  } catch (err) {
+    console.error('❌ Error in getCurrentMatchweek:', err.message);
+    res.status(500).json({ error: 'Server error' });
+  }
 };

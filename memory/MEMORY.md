@@ -1,0 +1,4 @@
+- [Project: FootyGuru overview](project_footyguru.md) — football-prediction app; web client + Node/Mongo backend; user is preparing for World Cup 2026.
+- [Project: RN migration plan (May 2026)](project_rn_migration.md) — building Expo RN app in parallel `mobile/` folder for WC 2026; existing web client stays live.
+- [Reference: deployed URLs](reference_deployments.md) — web app + API base URL on external hosts.
+- [Project: hosting plans](project_hosting.md) — planning to move backend off Render; target host TBD.

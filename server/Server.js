@@ -10,15 +10,25 @@ const predictionRoutes = require('./routes/Predictions');
 const matchRoutes = require('./routes/Matches');
 const groupRoutes = require('./routes/Groups');
 const teamRoutes = require('./routes/Teams');
+const standingsRoutes = require('./routes/Standings');
+const groupStandingPredictionRoutes = require('./routes/GroupStandingPredictions');
+const squadRoutes = require('./routes/Squads');
 
 const app = express();
 
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
+if (!process.env.JWT_SECRET) {
+  console.error('❌ Startup failed: JWT_SECRET is not set');
+  process.exit(1);
+}
+
 // ---- Explicit CORS (handles preflight reliably) ----
 const allowed = new Set([
-  'http://localhost:3000',
+  'http://localhost:3000',  // web client (CRA)
+  'http://localhost:8081',  // Expo web dev server
+  'http://localhost:19006', // Expo legacy web dev port
   'https://footyguru.netlify.app'
 ]);
 
@@ -47,6 +57,9 @@ app.use('/api/predictions', predictionRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/standings', standingsRoutes);
+app.use('/api/wc/group-predictions', groupStandingPredictionRoutes);
+app.use('/api/squads', squadRoutes);
 
 // Start
 (async () => {

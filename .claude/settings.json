@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(node --check controllers/GroupController.js)",
+      "Bash(cp client/public/logo.png mobile/assets/logo.png)",
+      "Bash(cp client/public/logo.png mobile/assets/icon.png)",
+      "Bash(cp client/public/logo.png mobile/assets/adaptive-icon.png)",
+      "Bash(cp client/public/logo.png mobile/assets/splash-icon.png)",
+      "Bash(cp client/public/logo.png mobile/assets/favicon.png)",
+      "Bash(node --check controllers/SquadController.js)",
+      "Bash(node --check models/Match.js)",
+      "Bash(node --check utils/matchMapper.js)",
+      "Bash(node --check controllers/MatchController.js)",
+      "Bash(git -C \"C:/Users/simen.hauge/Documents/privat/prosjekter/FootballApp\" log --oneline -- server/controllers/GroupController.js)",
+      "Bash(git -C \"c:/Users/simen.hauge/Documents/privat/prosjekter/FootballApp\" diff HEAD -- server/controllers/PlayerController.js server/routes/Players.js)",
+      "Bash(git -C \"C:\\\\Users\\\\simen.hauge\\\\Documents\\\\privat\\\\prosjekter\\\\FootballApp\" diff HEAD -- server/controllers/PredictionController.js server/routes/Predictions.js)",
+      "Bash(git -C \"C:/Users/simen.hauge/Documents/privat/prosjekter/FootballApp\" diff HEAD -- server/controllers/GroupController.js server/routes/Groups.js server/Server.js)",
+      "Bash(git -C \"c:\\\\Users\\\\simen.hauge\\\\Documents\\\\privat\\\\prosjekter\\\\FootballApp\" diff HEAD -- server/controllers/GroupController.js)",
+      "Bash(echo \"exit=$?\")"
+    ]
+  }
+}

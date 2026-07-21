@@ -1,4 +1,5 @@
 import { api } from './client';
+import type { ScoreBreakdown } from './leaderboard';
 
 export interface GroupSummary {
   _id: string;
@@ -14,6 +15,7 @@ export interface GroupMember {
   name: string;
   email: string;
   points: number;
+  pointsBreakdown?: ScoreBreakdown;
 }
 
 export interface GroupDetail {

@@ -6,7 +6,7 @@ const GroupStandingPrediction = require('../models/GroupStandingPrediction');
 const EmailCode = require('../models/EmailCode');
 const { signToken } = require('../middleware/auth');
 const { allowedGamemodesFor } = require('../utils/gamemodeFlags');
-const { getGamemodePointsByEmail } = require('../utils/scoreAggregation');
+const { getGamemodeScoresByEmail } = require('../utils/scoreAggregation');
 
 // GET /api/account/me — caller's own profile, including the per-user gamemode
 // allowlist. Clients call this on app start so a user added to
@@ -72,15 +72,19 @@ exports.getLeaderboard = async (req, res) => {
       );
     }
 
-    const pointsByEmail = await getGamemodePointsByEmail({ gamemode });
-    const emails = [...pointsByEmail.keys()];
+    const scoresByEmail = await getGamemodeScoresByEmail({ gamemode });
+    const emails = [...scoresByEmail.keys()];
     const players = emails.length > 0
       ? await Player.find({ email: { $in: emails } }).select('name email _id')
       : [];
     const playersByEmail = new Map(players.map((player) => [player.email, player]));
 
     const rows = emails
-      .map((email) => ({ email, points: pointsByEmail.get(email) || 0 }))
+      .map((email) => ({
+        email,
+        points: scoresByEmail.get(email)?.total || 0,
+        pointsBreakdown: scoresByEmail.get(email),
+      }))
       .sort((a, b) => (b.points - a.points) || a.email.localeCompare(b.email))
       .slice(0, limit);
 
@@ -90,6 +94,7 @@ exports.getLeaderboard = async (req, res) => {
         id: playersByEmail.get(r.email)?._id ?? r.email,
         name: playersByEmail.get(r.email)?.name ?? 'Unknown',
         points: r.points,
+        pointsBreakdown: r.pointsBreakdown,
       })),
     );
   } catch (err) {
@@ -111,7 +116,7 @@ exports.getPlayersByGroup = async (req, res) => {
 
     const players = await Player.find({ groups: groupId }).select('name email _id');
     const gamemode = String(group.gamemode);
-    const pointsByEmail = await getGamemodePointsByEmail({
+    const scoresByEmail = await getGamemodeScoresByEmail({
       gamemode,
       emails: players.map((p) => p.email),
     });
@@ -120,7 +125,8 @@ exports.getPlayersByGroup = async (req, res) => {
       _id: p._id,
       name: p.name,
       email: p.email,
-      points: pointsByEmail.get(p.email) || 0,
+      points: scoresByEmail.get(p.email)?.total || 0,
+      pointsBreakdown: scoresByEmail.get(p.email),
     }));
     
     res.json(result);

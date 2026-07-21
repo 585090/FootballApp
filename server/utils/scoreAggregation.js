@@ -7,13 +7,33 @@ const TOURNAMENT_COMPETITION_BY_GAMEMODE = {
   '4': 'CL',
 };
 
-function mergeRowsIntoMap(rows, pointsByEmail) {
+function emptyBreakdown() {
+  return {
+    match: 0,
+    groupStandings: 0,
+    topScorer: 0,
+    topThree: 0,
+    total: 0,
+  };
+}
+
+function ensureBreakdown(scoresByEmail, email) {
+  if (!scoresByEmail.has(email)) {
+    scoresByEmail.set(email, emptyBreakdown());
+  }
+  return scoresByEmail.get(email);
+}
+
+function mergeRowsIntoMap(rows, scoresByEmail, field) {
   for (const row of rows) {
     const email = String(row?._id || '').toLowerCase();
     if (!email) continue;
     const points = Number(row?.points ?? 0);
     if (!Number.isFinite(points)) continue;
-    pointsByEmail.set(email, (pointsByEmail.get(email) || 0) + points);
+
+    const breakdown = ensureBreakdown(scoresByEmail, email);
+    breakdown[field] += points;
+    breakdown.total += points;
   }
 }
 
@@ -27,11 +47,18 @@ function buildEmailMatch(emails) {
 }
 
 async function getGamemodePointsByEmail({ gamemode, emails } = {}) {
+  const scoresByEmail = await getGamemodeScoresByEmail({ gamemode, emails });
+  return new Map(
+    [...scoresByEmail.entries()].map(([email, breakdown]) => [email, breakdown.total]),
+  );
+}
+
+async function getGamemodeScoresByEmail({ gamemode, emails } = {}) {
   const normalizedGamemode = String(gamemode || '').trim();
   if (!normalizedGamemode) return new Map();
 
   const emailMatch = buildEmailMatch(emails);
-  const pointsByEmail = new Map();
+  const scoresByEmail = new Map();
 
   const [matchRows, wcGroupRows, tournamentRows] = await Promise.all([
     Prediction.aggregate([
@@ -50,25 +77,38 @@ async function getGamemodePointsByEmail({ gamemode, emails } = {}) {
           {
             $project: {
               email: 1,
-              total: {
-                $add: [
-                  { $ifNull: ['$pointsAwarded.goldenBoot', 0] },
-                  { $ifNull: ['$pointsAwarded.topThree', 0] },
-                ],
-              },
+              goldenBoot: { $ifNull: ['$pointsAwarded.goldenBoot', 0] },
+              topThree: { $ifNull: ['$pointsAwarded.topThree', 0] },
             },
           },
-          { $match: { total: { $gt: 0 } } },
-          { $group: { _id: '$email', points: { $sum: '$total' } } },
+          {
+            $group: {
+              _id: '$email',
+              topScorer: { $sum: '$goldenBoot' },
+              topThree: { $sum: '$topThree' },
+            },
+          },
         ])
       : Promise.resolve([]),
   ]);
 
-  mergeRowsIntoMap(matchRows, pointsByEmail);
-  mergeRowsIntoMap(wcGroupRows, pointsByEmail);
-  mergeRowsIntoMap(tournamentRows, pointsByEmail);
+  mergeRowsIntoMap(matchRows, scoresByEmail, 'match');
+  mergeRowsIntoMap(wcGroupRows, scoresByEmail, 'groupStandings');
+  for (const row of tournamentRows) {
+    const email = String(row?._id || '').toLowerCase();
+    if (!email) continue;
 
-  return pointsByEmail;
+    const topScorer = Number(row?.topScorer ?? 0);
+    const topThree = Number(row?.topThree ?? 0);
+    if (!Number.isFinite(topScorer) || !Number.isFinite(topThree)) continue;
+
+    const breakdown = ensureBreakdown(scoresByEmail, email);
+    breakdown.topScorer += topScorer;
+    breakdown.topThree += topThree;
+    breakdown.total += topScorer + topThree;
+  }
+
+  return scoresByEmail;
 }
 
-module.exports = { getGamemodePointsByEmail };
+module.exports = { getGamemodePointsByEmail, getGamemodeScoresByEmail };

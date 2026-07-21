@@ -1,7 +1,7 @@
 const Group = require('../models/Group');
 const Player = require('../models/Player');
 const { generateUniqueJoinCode } = require('../utils/joinCode');
-const { getGamemodePointsByEmail } = require('../utils/scoreAggregation');
+const { getGamemodeScoresByEmail } = require('../utils/scoreAggregation');
 
 function isMember(group, playerId) {
   return group.players.some((id) => String(id) === String(playerId));
@@ -46,7 +46,7 @@ exports.getGroupById = async (req, res) => {
 
     const member = group.players.some((p) => p.email === req.user.email);
     const gamemode = String(group.gamemode);
-    const pointsByEmail = await getGamemodePointsByEmail({
+    const scoresByEmail = await getGamemodeScoresByEmail({
       gamemode,
       emails: group.players.map((p) => p.email),
     });
@@ -55,7 +55,8 @@ exports.getGroupById = async (req, res) => {
       _id: p._id,
       name: p.name,
       email: p.email,
-      points: pointsByEmail.get(p.email) || 0,
+      points: scoresByEmail.get(p.email)?.total || 0,
+      pointsBreakdown: scoresByEmail.get(p.email),
     }));
 
     res.json({

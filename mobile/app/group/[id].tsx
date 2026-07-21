@@ -81,6 +81,7 @@ export default function GroupDetailScreen() {
   }
 
   const sortedMembers = [...group.members].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
+  const showTournamentBreakdown = group.gamemode === 3 || group.gamemode === 4;
 
   return (
     <Screen>
@@ -163,6 +164,11 @@ export default function GroupDetailScreen() {
                   <View style={styles.memberNameWrap}>
                     <Text variant="bodyBold" numberOfLines={1}>{m.name}</Text>
                     {isYou ? <Text variant="caption" color="brand">YOU</Text> : null}
+                    {showTournamentBreakdown ? (
+                      <Text variant="caption" color="muted">
+                        Top scorer {m.pointsBreakdown?.topScorer ?? 0} · 1-3 place {m.pointsBreakdown?.topThree ?? 0}
+                      </Text>
+                    ) : null}
                   </View>
                   <View style={styles.pointsCol}>
                     <Text variant="bodyBold">{points}</Text>

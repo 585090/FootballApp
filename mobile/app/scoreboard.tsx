@@ -41,6 +41,7 @@ export default function Scoreboard() {
   const youIndex = entries.findIndex(
     (e) => session?.id && String(e.id) === String(session.id),
   );
+  const showTournamentBreakdown = serverGamemode === 3 || serverGamemode === 4;
 
   return (
     <Screen>
@@ -85,6 +86,11 @@ export default function Scoreboard() {
                 <View style={styles.nameWrap}>
                   <Text variant="bodyBold">{e.name}</Text>
                   {isYou ? <Text variant="caption" color="brand">YOU</Text> : null}
+                  {showTournamentBreakdown ? (
+                    <Text variant="caption" color="muted">
+                      Top scorer {e.pointsBreakdown?.topScorer ?? 0} · 1-3 place {e.pointsBreakdown?.topThree ?? 0}
+                    </Text>
+                  ) : null}
                 </View>
                 <Text variant="bodyBold">{e.points}</Text>
               </View>

@@ -4,6 +4,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, Screen, Text } from '@/components/ui';
+import { TournamentSummaryModal } from '@/components/TournamentSummaryModal';
 import { useAuth } from '@/auth/AuthContext';
 import { groupsApi, type GroupDetail } from '@/api/groups';
 import { colors, radii, spacing } from '@/theme';
@@ -17,6 +18,7 @@ export default function GroupDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -124,9 +126,21 @@ export default function GroupDetailScreen() {
       <View style={styles.section}>
         <View style={styles.scoreboardHeader}>
           <Text variant="h3" style={styles.sectionTitle}>Scoreboard</Text>
-          <Text variant="caption" color="muted">
-            {sortedMembers.length} {sortedMembers.length === 1 ? 'player' : 'players'}
-          </Text>
+          <View style={styles.scoreboardMeta}>
+            {showTournamentBreakdown ? (
+              <Pressable
+                onPress={() => setSummaryOpen(true)}
+                hitSlop={6}
+                style={({ pressed }) => [styles.summaryButton, pressed && styles.codeActionPressed]}
+              >
+                <Ionicons name="stats-chart-outline" size={14} color={colors.brand.primary} />
+                <Text variant="caption" color="brand">Tournament summary</Text>
+              </Pressable>
+            ) : null}
+            <Text variant="caption" color="muted">
+              {sortedMembers.length} {sortedMembers.length === 1 ? 'player' : 'players'}
+            </Text>
+          </View>
         </View>
         <Card padding={0}>
           <View style={styles.tableHead}>
@@ -196,6 +210,14 @@ export default function GroupDetailScreen() {
           <Text variant="small" color="muted">Group settings</Text>
         </Pressable>
       </View>
+
+      {showTournamentBreakdown ? (
+        <TournamentSummaryModal
+          visible={summaryOpen}
+          onClose={() => setSummaryOpen(false)}
+          groupId={group.id}
+        />
+      ) : null}
     </Screen>
   );
 }
@@ -225,11 +247,21 @@ const styles = StyleSheet.create({
   codeActionPressed: { opacity: 0.7 },
   section: { gap: spacing.md, marginBottom: spacing.lg },
   sectionTitle: { marginLeft: spacing.xs },
+  scoreboardMeta: { alignItems: 'flex-end', gap: spacing.xs },
   scoreboardHeader: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.xs,
+  },
+  summaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    borderRadius: radii.pill,
+    backgroundColor: colors.brand.primaryLight,
   },
   tableHead: {
     flexDirection: 'row',

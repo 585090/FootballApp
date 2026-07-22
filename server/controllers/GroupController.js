@@ -1,7 +1,18 @@
 const Group = require('../models/Group');
 const Player = require('../models/Player');
+const GroupStandingPrediction = require('../models/GroupStandingPrediction');
+const TournamentPrediction = require('../models/TournamentPrediction');
+const TournamentResult = require('../models/TournamentResult');
 const { generateUniqueJoinCode } = require('../utils/joinCode');
+const { extractGroupStandings } = require('../utils/groupStandingScoring');
 const { getGamemodeScoresByEmail } = require('../utils/scoreAggregation');
+const { summarizeTournamentPerformance } = require('../utils/tournamentSummary');
+const { getStandings, isRateLimit } = require('../utils/footballDataClient');
+
+const TOURNAMENT_COMPETITION_BY_GAMEMODE = {
+  '3': 'WC',
+  '4': 'CL',
+};
 
 function isMember(group, playerId) {
   return group.players.some((id) => String(id) === String(playerId));
@@ -71,6 +82,140 @@ exports.getGroupById = async (req, res) => {
   } catch (err) {
     console.error('❌ Error fetching group by ID:', err);
     res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// GET per-player tournament summary for a single group. Members only because
+// this exposes every player's tournament-wide picks and outcomes.
+exports.getTournamentSummary = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const group = await Group.findById(id).populate('players', 'name email _id');
+
+    if (!group) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    const member = group.players.some((p) => p.email === req.user.email);
+    if (!member) {
+      return res.status(403).json({ error: 'Only group members can view tournament summaries' });
+    }
+
+    const competition = TOURNAMENT_COMPETITION_BY_GAMEMODE[String(group.gamemode)];
+    const season = String(new Date().getFullYear());
+    if (!competition) {
+      return res.json({
+        competition: null,
+        season,
+        available: false,
+        reason: 'Tournament summary is only available for World Cup and Champions League groups.',
+        statuses: {
+          topScorerResolved: false,
+          topThreeResolved: false,
+          groupStandingsResolved: false,
+        },
+        tournamentResult: null,
+        players: [],
+      });
+    }
+
+    const emails = group.players.map((p) => p.email);
+    const [tournamentPredictions, tournamentResult, groupStandingPredictions] = await Promise.all([
+      TournamentPrediction.find({
+        email: { $in: emails },
+        competition,
+        season,
+      }),
+      TournamentResult.findOne({ competition, season }),
+      competition === 'WC'
+        ? GroupStandingPrediction.find({
+            email: { $in: emails },
+            competition,
+          })
+        : Promise.resolve([]),
+    ]);
+
+    let actualGroups = new Map();
+    let standingsWarning = null;
+    if (competition === 'WC') {
+      try {
+        const standingsData = await getStandings('WC');
+        actualGroups = extractGroupStandings(standingsData?.standings);
+      } catch (err) {
+        standingsWarning = isRateLimit(err)
+          ? 'World Cup standings are temporarily rate-limited.'
+          : 'World Cup standings are currently unavailable.';
+      }
+    }
+
+    const predictionsByEmail = new Map(
+      tournamentPredictions.map((prediction) => [prediction.email, prediction]),
+    );
+    const groupPredictionsByEmail = new Map();
+    for (const prediction of groupStandingPredictions) {
+      if (!groupPredictionsByEmail.has(prediction.email)) {
+        groupPredictionsByEmail.set(prediction.email, []);
+      }
+      groupPredictionsByEmail.get(prediction.email).push(prediction);
+    }
+
+    const players = group.players
+      .map((player) => {
+        const summary = summarizeTournamentPerformance({
+          tournamentPrediction: predictionsByEmail.get(player.email) || null,
+          tournamentResult,
+          groupPredictions: groupPredictionsByEmail.get(player.email) || [],
+          actualGroups,
+        });
+
+        const topScorerPoints = summary.topScorer.points;
+        const topThreePoints = summary.topThree.points;
+        const groupStandingPoints = summary.groupStandings.points;
+
+        return {
+          id: player._id,
+          name: player.name,
+          email: player.email,
+          points: {
+            topScorer: topScorerPoints,
+            topThree: topThreePoints,
+            groupStandings: groupStandingPoints,
+            total: topScorerPoints + topThreePoints + groupStandingPoints,
+          },
+          summary,
+        };
+      })
+      .sort((a, b) => (b.points.total - a.points.total) || a.name.localeCompare(b.name));
+
+    res.json({
+      competition,
+      season,
+      available: Boolean(tournamentResult?.finalizedAt) || actualGroups.size > 0,
+      reason:
+        standingsWarning ||
+        (!tournamentResult?.finalizedAt && actualGroups.size === 0
+          ? 'Tournament summary will fill in as results are finalized.'
+          : null),
+      statuses: {
+        topScorerResolved: tournamentResult?.goldenBoot?.playerId != null,
+        topThreeResolved: Array.isArray(tournamentResult?.topThreeTeamIds)
+          && tournamentResult.topThreeTeamIds.length >= 3,
+        groupStandingsResolved: actualGroups.size > 0,
+      },
+      tournamentResult: tournamentResult
+        ? {
+            goldenBoot: tournamentResult.goldenBoot,
+            topThreeTeamIds: tournamentResult.topThreeTeamIds,
+            topThreeTeamNames: tournamentResult.topThreeTeamNames,
+            finalizedAt: tournamentResult.finalizedAt,
+            resolvedAt: tournamentResult.resolvedAt,
+          }
+        : null,
+      players,
+    });
+  } catch (err) {
+    console.error('❌ Error fetching tournament summary:', err);
+    res.status(500).json({ error: 'Failed to load tournament summary' });
   }
 };
 

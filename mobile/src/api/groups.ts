@@ -28,6 +28,80 @@ export interface GroupDetail {
   members: GroupMember[];
 }
 
+export interface TournamentSummaryPodiumSlot {
+  rank: number;
+  predictedTeamId: number | null;
+  predictedTeamName: string | null;
+  actualTeamId: number | null;
+  actualTeamName: string | null;
+  exact: boolean | null;
+  inTopThree: boolean | null;
+  wrongSlot: boolean;
+}
+
+export interface GroupTournamentSummaryPlayer {
+  id: string;
+  name: string;
+  email: string;
+  points: {
+    topScorer: number;
+    topThree: number;
+    groupStandings: number;
+    total: number;
+  };
+  summary: {
+    answeredCount: number;
+    exactCount: number;
+    partialCount: number;
+    topScorer: {
+      resolved: boolean;
+      predictedPlayerId: number | null;
+      predictedPlayerName: string | null;
+      actualPlayerId: number | null;
+      actualPlayerName: string | null;
+      correct: boolean | null;
+      points: number;
+    };
+    topThree: {
+      resolved: boolean;
+      exactCount: number;
+      wrongSlotCount: number;
+      filledCount: number;
+      points: number;
+      slots: TournamentSummaryPodiumSlot[];
+    };
+    groupStandings: {
+      groupsSubmitted: number;
+      exact: number;
+      offByOne: number;
+      offByTwo: number;
+      offByThreeOrMore: number;
+      filledCount: number;
+      points: number;
+    };
+  };
+}
+
+export interface GroupTournamentSummary {
+  competition: 'WC' | 'CL' | null;
+  season: string;
+  available: boolean;
+  reason: string | null;
+  statuses: {
+    topScorerResolved: boolean;
+    topThreeResolved: boolean;
+    groupStandingsResolved: boolean;
+  };
+  tournamentResult: {
+    goldenBoot: { playerId: number | null; playerName: string | null; goals: number | null };
+    topThreeTeamIds: number[];
+    topThreeTeamNames: string[];
+    finalizedAt: string | null;
+    resolvedAt: string | null;
+  } | null;
+  players: GroupTournamentSummaryPlayer[];
+}
+
 export interface CreateGroupInput {
   groupName: string;
   tournament: string;
@@ -39,6 +113,8 @@ export const groupsApi = {
   listMine: (email: string) =>
     api.get<GroupSummary[]>(`/api/groups/player/${encodeURIComponent(email.toLowerCase())}`),
   get: (id: string) => api.get<GroupDetail>(`/api/groups/${id}`),
+  getTournamentSummary: (id: string) =>
+    api.get<GroupTournamentSummary>(`/api/groups/${id}/tournament-summary`),
   create: (input: CreateGroupInput) =>
     api.post<{ message: string; group: GroupSummary }>('/api/groups/createGroup', input),
   join: (input: { joinCode: string; email: string }) =>

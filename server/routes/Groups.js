@@ -6,6 +6,7 @@ const { requireAuth } = require('../middleware/auth');
 router.use(requireAuth);
 
 router.get('/player/:email', controller.getGroupsByPlayerEmail);
+router.get('/:id/tournament-summary', controller.getTournamentSummary);
 router.get('/:id', controller.getGroupById);
 router.post('/createGroup', controller.createGroup);
 router.post('/join', controller.joinGroupByCode);

@@ -40,8 +40,6 @@ export function TournamentSummaryModal({ visible, onClose, groupId }: Tournament
     };
   }, [groupId, visible]);
 
-  const actualTopThree = summary?.tournamentResult?.topThreeTeamNames?.filter(Boolean).join(' · ');
-
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
@@ -70,7 +68,7 @@ export function TournamentSummaryModal({ visible, onClose, groupId }: Tournament
                 {summary.reason ? <Banner tone="muted" text={summary.reason} /> : null}
 
                 <View style={styles.actualCard}>
-                  <Text variant="caption" color="brand">ACTUAL OUTCOME</Text>
+                  <Text variant="caption" color="brand">OUTCOME</Text>
                   <View style={styles.actualRows}>
                     <SummaryLine
                       label="Top scorer"
@@ -78,19 +76,13 @@ export function TournamentSummaryModal({ visible, onClose, groupId }: Tournament
                     />
                     <SummaryLine
                       label="Top 3"
-                      value={actualTopThree || pendingLabel(summary.statuses.topThreeResolved)}
+                      value={summary.statuses.topThreeResolved ? 'Resolved' : pendingLabel(summary.statuses.topThreeResolved)}
                     />
-                    {summary.competition === 'WC' ? (
-                      <SummaryLine
-                        label="Group stage"
-                        value={summary.statuses.groupStandingsResolved ? 'Resolved' : 'Pending'}
-                      />
-                    ) : null}
                   </View>
                 </View>
 
                 {summary.players.map((player) => (
-                  <PlayerCard key={player.id} player={player} competition={summary.competition} />
+                  <PlayerCard key={player.id} player={player} />
                 ))}
               </>
             )}
@@ -103,10 +95,8 @@ export function TournamentSummaryModal({ visible, onClose, groupId }: Tournament
 
 function PlayerCard({
   player,
-  competition,
 }: {
   player: GroupTournamentSummaryPlayer;
-  competition: GroupTournamentSummary['competition'];
 }) {
   const scorerStatus =
     player.summary.topScorer.correct == null
@@ -136,15 +126,37 @@ function PlayerCard({
           label="1-3 place"
           value={`${player.summary.topThree.exactCount}/3 exact · ${player.summary.topThree.wrongSlotCount} wrong-slot hits · ${player.points.topThree} pts`}
         />
-        {competition === 'WC' ? (
+      </View>
+
+      <View style={styles.section}>
+        <Text variant="caption" color="brand">TOP 3 TEAMS</Text>
+        {player.summary.topThree.slots.map((slot) => (
           <SummaryLine
-            label="Group stage"
-            value={`Exact ${player.summary.groupStandings.exact} · Off by 1 ${player.summary.groupStandings.offByOne} · Off by 2 ${player.summary.groupStandings.offByTwo} · ${player.points.groupStandings} pts`}
+            key={slot.rank}
+            label={ordinal(slot.rank)}
+            value={formatTopThreeSlot(slot)}
           />
-        ) : null}
+        ))}
       </View>
     </View>
   );
+}
+
+function formatTopThreeSlot(slot: GroupTournamentSummaryPlayer['summary']['topThree']['slots'][number]) {
+  const predicted = slot.predictedTeamName || 'No pick';
+  const outcome = slot.exact == null
+    ? 'Pending'
+    : slot.exact
+      ? 'Correct'
+      : slot.wrongSlot
+        ? 'Wrong slot'
+        : 'Missed';
+
+  let points = 0;
+  if (slot.exact) points = 3;
+  else if (slot.wrongSlot) points = 2;
+
+  return `${predicted} · ${outcome} · ${points} pts`;
 }
 
 function SummaryLine({ label, value }: { label: string; value: string }) {
@@ -166,6 +178,13 @@ function Banner({ tone, text }: { tone: 'muted' | 'danger'; text: string }) {
 
 function pendingLabel(resolved: boolean) {
   return resolved ? 'Resolved' : 'Pending';
+}
+
+function ordinal(position: number) {
+  if (position === 1) return '1st';
+  if (position === 2) return '2nd';
+  if (position === 3) return '3rd';
+  return `${position}th`;
 }
 
 const styles = StyleSheet.create({

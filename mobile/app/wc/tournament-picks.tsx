@@ -17,6 +17,13 @@ import { colors, radii, shadows, spacing } from '@/theme';
 
 const COMPETITION = 'WC';
 
+function topThreeOutcomeLabel(breakdown: { exact: boolean; actualTeamId: number | null; points: number | null }) {
+  if (breakdown.points == null) return null;
+  if (breakdown.exact) return 'Correct';
+  if (breakdown.actualTeamId != null && breakdown.points > 0) return 'Wrong slot';
+  return 'Missed';
+}
+
 export default function TournamentPicksScreen() {
   const { session } = useAuth();
   const [teams, setTeams] = useState<CompetitionTeam[] | null>(null);
@@ -93,7 +100,6 @@ export default function TournamentPicksScreen() {
   const topThreeBreakdown = useMemo(
     () => topThree.map((slot) => {
       const actualTeamId = result?.topThreeTeamIds?.[slot.rank - 1] ?? null;
-      const actualTeamName = result?.topThreeTeamNames?.[slot.rank - 1] ?? null;
       const resolved = Array.isArray(result?.topThreeTeamIds) && result.topThreeTeamIds.length >= 3;
       const predictedTeamId = slot.teamId ?? null;
       const exact = resolved && predictedTeamId != null && predictedTeamId === actualTeamId;
@@ -109,7 +115,6 @@ export default function TournamentPicksScreen() {
       return {
         rank: slot.rank,
         actualTeamId,
-        actualTeamName,
         exact,
         points,
       };
@@ -247,7 +252,7 @@ export default function TournamentPicksScreen() {
                 </Text>
                 {goldenBootResolved ? (
                   <Text variant="small" color="muted" numberOfLines={1}>
-                    Actual: {result?.goldenBoot?.playerName ?? 'Unknown'} · +{awardedGoldenBootPoints ?? 0} pts
+                    {result?.goldenBoot?.playerName ?? 'Unknown'} · +{awardedGoldenBootPoints ?? 0} pts
                   </Text>
                 ) : null}
               </View>
@@ -271,7 +276,7 @@ export default function TournamentPicksScreen() {
                 <Text variant="body" color="muted">Tap to choose a player</Text>
                 {goldenBootResolved ? (
                   <Text variant="small" color="muted" numberOfLines={1}>
-                    Actual: {result?.goldenBoot?.playerName ?? 'Unknown'} · +0 pts
+                    {result?.goldenBoot?.playerName ?? 'Unknown'} · +0 pts
                   </Text>
                 ) : null}
               </View>
@@ -334,7 +339,7 @@ export default function TournamentPicksScreen() {
                     <Text variant="bodyBold" numberOfLines={1}>{slot.teamName}</Text>
                     {breakdown?.points != null ? (
                       <Text variant="small" color="muted" numberOfLines={1}>
-                        Finished {ordinal(slot.rank)}: {breakdown.actualTeamName ?? 'Unknown'} · +{breakdown.points} pts
+                        {topThreeOutcomeLabel(breakdown)} · +{breakdown.points} pts
                       </Text>
                     ) : null}
                   </View>
@@ -359,7 +364,7 @@ export default function TournamentPicksScreen() {
                     </Text>
                     {breakdown?.points != null ? (
                       <Text variant="small" color="muted" numberOfLines={1}>
-                        Finished {ordinal(slot.rank)}: {breakdown.actualTeamName ?? 'Unknown'} · +0 pts
+                        {topThreeOutcomeLabel(breakdown)} · +0 pts
                       </Text>
                     ) : null}
                   </View>

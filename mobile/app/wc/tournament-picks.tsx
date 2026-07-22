@@ -7,7 +7,9 @@ import {
   tournamentPredictionsApi,
   type GoldenBootPick,
   type TopThreePick,
+  type TournamentResult,
 } from '@/api/tournamentPredictions';
+import { DEFAULT_POINTS_CONFIG, getPointsConfig, type PointsConfig } from '@/api/pointsConfig';
 import { getCompetitionTeams, type CompetitionTeam } from '@/api/wc';
 import { squadsApi, type Squad, type SquadPlayer } from '@/api/squads';
 import { PointsInfoButton } from '@/components/PointsInfoModal';
@@ -18,6 +20,8 @@ const COMPETITION = 'WC';
 export default function TournamentPicksScreen() {
   const { session } = useAuth();
   const [teams, setTeams] = useState<CompetitionTeam[] | null>(null);
+  const [result, setResult] = useState<TournamentResult | null>(null);
+  const [pointsConfig, setPointsConfig] = useState<PointsConfig>(DEFAULT_POINTS_CONFIG);
   const [goldenBoot, setGoldenBoot] = useState<GoldenBootPick>({ playerId: null, playerName: null, teamId: null });
   const [topThree, setTopThree] = useState<TopThreePick[]>([
     { rank: 1, teamId: null, teamName: null },
@@ -37,13 +41,17 @@ export default function TournamentPicksScreen() {
     let cancelled = false;
     (async () => {
       try {
-        const [teamsRes, predRes] = await Promise.all([
+        const [teamsRes, predRes, resultRes, pointsConfigRes] = await Promise.all([
           getCompetitionTeams(COMPETITION),
           tournamentPredictionsApi.get(COMPETITION),
+          tournamentPredictionsApi.getResult(COMPETITION),
+          getPointsConfig(),
         ]);
         if (cancelled) return;
         setTeams(teamsRes);
         setLocked(predRes.locked);
+        setResult(resultRes);
+        setPointsConfig(pointsConfigRes);
         if (predRes.prediction) {
           if (predRes.prediction.goldenBoot) setGoldenBoot(predRes.prediction.goldenBoot);
           if (predRes.prediction.topThree?.length) {
@@ -71,6 +79,47 @@ export default function TournamentPicksScreen() {
     for (const t of teams ?? []) map.set(t.teamId, t);
     return map;
   }, [teams]);
+
+  const goldenBootResolved = result?.goldenBoot?.playerId != null;
+  const goldenBootPoints = result?.goldenBoot?.playerId == null
+    ? null
+    : goldenBoot.playerId != null && goldenBoot.playerId === result.goldenBoot.playerId
+      ? pointsConfig.goldenBoot.exact
+      : 0;
+  const awardedGoldenBootPoints = goldenBootResolved
+    ? goldenBootPoints ?? 0
+    : null;
+
+  const topThreeBreakdown = useMemo(
+    () => topThree.map((slot) => {
+      const actualTeamId = result?.topThreeTeamIds?.[slot.rank - 1] ?? null;
+      const actualTeamName = result?.topThreeTeamNames?.[slot.rank - 1] ?? null;
+      const resolved = Array.isArray(result?.topThreeTeamIds) && result.topThreeTeamIds.length >= 3;
+      const predictedTeamId = slot.teamId ?? null;
+      const exact = resolved && predictedTeamId != null && predictedTeamId === actualTeamId;
+      const inTopThree = resolved && predictedTeamId != null && (result?.topThreeTeamIds || []).includes(predictedTeamId);
+      const points = !resolved
+        ? null
+        : exact
+          ? pointsConfig.topThree[slot.rank === 1 ? 'champion' : slot.rank === 2 ? 'finalist' : 'third']
+          : inTopThree
+            ? pointsConfig.topThree.teamInTopThreeBonus
+            : 0;
+
+      return {
+        rank: slot.rank,
+        actualTeamId,
+        actualTeamName,
+        exact,
+        points,
+      };
+    }),
+    [pointsConfig, result, topThree],
+  );
+
+  const awardedTopThreePoints = topThreeBreakdown.every((row) => row.points != null)
+    ? topThreeBreakdown.reduce((sum, row) => sum + (row.points ?? 0), 0)
+    : null;
 
   const handlePickPlayer = useCallback((team: CompetitionTeam, player: SquadPlayer) => {
     setGoldenBoot({ playerId: player.id, playerName: player.name, teamId: team.teamId });
@@ -159,9 +208,21 @@ export default function TournamentPicksScreen() {
       )}
 
       <Card style={styles.section}>
-        <Text variant="h3" style={styles.sectionTitle}>Golden Boot</Text>
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionHeaderText}>
+            <Text variant="h3" style={styles.sectionTitle}>Golden Boot</Text>
+            {awardedGoldenBootPoints != null ? (
+              <Text variant="small" color="secondary">Resolved for +{awardedGoldenBootPoints} pts</Text>
+            ) : null}
+          </View>
+          {awardedGoldenBootPoints != null ? (
+            <View style={[styles.sectionPointsBadge, awardedGoldenBootPoints > 0 ? styles.sectionPointsBadgeWin : styles.sectionPointsBadgeZero]}>
+              <Text variant="caption" color={awardedGoldenBootPoints > 0 ? 'inverse' : 'secondary'}>+{awardedGoldenBootPoints}</Text>
+            </View>
+          ) : null}
+        </View>
         <Text variant="small" color="muted" style={styles.sectionHint}>
-          The tournament's top goalscorer. Worth 15 pts if correct.
+          The tournament's top goalscorer. Worth 5 pts if correct.
         </Text>
         <Pressable
           disabled={locked}
@@ -184,7 +245,19 @@ export default function TournamentPicksScreen() {
                 <Text variant="small" color="muted" numberOfLines={1}>
                   {bootTeam?.teamName ?? 'Unknown team'}
                 </Text>
+                {goldenBootResolved ? (
+                  <Text variant="small" color="muted" numberOfLines={1}>
+                    Actual: {result?.goldenBoot?.playerName ?? 'Unknown'} · +{awardedGoldenBootPoints ?? 0} pts
+                  </Text>
+                ) : null}
               </View>
+              {awardedGoldenBootPoints != null ? (
+                <View style={[styles.pointsPill, awardedGoldenBootPoints > 0 ? styles.pointsPillWin : styles.pointsPillZero]}>
+                  <Text variant="caption" color={awardedGoldenBootPoints > 0 ? 'inverse' : 'secondary'}>
+                    +{awardedGoldenBootPoints}
+                  </Text>
+                </View>
+              ) : null}
               {!locked && (
                 <Pressable hitSlop={10} onPress={handleClearBoot}>
                   <Ionicons name="close-circle" size={20} color={colors.text.muted} />
@@ -194,7 +267,19 @@ export default function TournamentPicksScreen() {
           ) : (
             <View style={styles.slotEmpty}>
               <Ionicons name="football-outline" size={18} color={colors.text.muted} />
-              <Text variant="body" color="muted">Tap to choose a player</Text>
+              <View style={styles.slotText}>
+                <Text variant="body" color="muted">Tap to choose a player</Text>
+                {goldenBootResolved ? (
+                  <Text variant="small" color="muted" numberOfLines={1}>
+                    Actual: {result?.goldenBoot?.playerName ?? 'Unknown'} · +0 pts
+                  </Text>
+                ) : null}
+              </View>
+              {awardedGoldenBootPoints != null ? (
+                <View style={[styles.pointsPill, styles.pointsPillZero]}>
+                  <Text variant="caption" color="secondary">+0</Text>
+                </View>
+              ) : null}
               <Ionicons name="chevron-forward" size={18} color={colors.text.muted} />
             </View>
           )}
@@ -202,12 +287,25 @@ export default function TournamentPicksScreen() {
       </Card>
 
       <Card style={styles.section}>
-        <Text variant="h3" style={styles.sectionTitle}>Top 3 teams</Text>
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionHeaderText}>
+            <Text variant="h3" style={styles.sectionTitle}>Top 3 teams</Text>
+            {awardedTopThreePoints != null ? (
+              <Text variant="small" color="secondary">Resolved for +{awardedTopThreePoints} pts</Text>
+            ) : null}
+          </View>
+          {awardedTopThreePoints != null ? (
+            <View style={[styles.sectionPointsBadge, awardedTopThreePoints > 0 ? styles.sectionPointsBadgeWin : styles.sectionPointsBadgeZero]}>
+              <Text variant="caption" color={awardedTopThreePoints > 0 ? 'inverse' : 'secondary'}>+{awardedTopThreePoints}</Text>
+            </View>
+          ) : null}
+        </View>
         <Text variant="small" color="muted" style={styles.sectionHint}>
-          Champion · finalist · third place. Up to 10 / 6 / 4 pts + 2 pts for any team in the actual top 3.
+          Champion · finalist · third place. +3 pts per correct slot, +2 pts for any team in the actual top 3.
         </Text>
         {topThree.map((slot) => {
           const team = slot.teamId ? teamsById.get(slot.teamId) : null;
+          const breakdown = topThreeBreakdown.find((row) => row.rank === slot.rank);
           return (
             <Pressable
               key={slot.rank}
@@ -234,7 +332,19 @@ export default function TournamentPicksScreen() {
                   )}
                   <View style={styles.slotText}>
                     <Text variant="bodyBold" numberOfLines={1}>{slot.teamName}</Text>
+                    {breakdown?.points != null ? (
+                      <Text variant="small" color="muted" numberOfLines={1}>
+                        Finished {ordinal(slot.rank)}: {breakdown.actualTeamName ?? 'Unknown'} · +{breakdown.points} pts
+                      </Text>
+                    ) : null}
                   </View>
+                  {breakdown?.points != null ? (
+                    <View style={[styles.pointsPill, breakdown.points > 0 ? styles.pointsPillWin : styles.pointsPillZero]}>
+                      <Text variant="caption" color={breakdown.points > 0 ? 'inverse' : 'secondary'}>
+                        +{breakdown.points}
+                      </Text>
+                    </View>
+                  ) : null}
                   {!locked && (
                     <Pressable hitSlop={10} onPress={() => handleClearRank(slot.rank as 1 | 2 | 3)}>
                       <Ionicons name="close-circle" size={20} color={colors.text.muted} />
@@ -243,9 +353,21 @@ export default function TournamentPicksScreen() {
                 </View>
               ) : (
                 <View style={styles.slotEmpty}>
-                  <Text variant="body" color="muted">
-                    Pick {slot.rank === 1 ? 'champion' : slot.rank === 2 ? 'finalist' : 'third place'}
-                  </Text>
+                  <View style={styles.slotText}>
+                    <Text variant="body" color="muted">
+                      Pick {slot.rank === 1 ? 'champion' : slot.rank === 2 ? 'finalist' : 'third place'}
+                    </Text>
+                    {breakdown?.points != null ? (
+                      <Text variant="small" color="muted" numberOfLines={1}>
+                        Finished {ordinal(slot.rank)}: {breakdown.actualTeamName ?? 'Unknown'} · +0 pts
+                      </Text>
+                    ) : null}
+                  </View>
+                  {breakdown?.points != null ? (
+                    <View style={[styles.pointsPill, styles.pointsPillZero]}>
+                      <Text variant="caption" color="secondary">+0</Text>
+                    </View>
+                  ) : null}
                   <Ionicons name="chevron-forward" size={18} color={colors.text.muted} />
                 </View>
               )}
@@ -297,6 +419,13 @@ export default function TournamentPicksScreen() {
       />
     </Screen>
   );
+}
+
+function ordinal(position: number) {
+  if (position === 1) return '1st';
+  if (position === 2) return '2nd';
+  if (position === 3) return '3rd';
+  return `${position}th`;
 }
 
 // ---- Golden Boot picker: team list → squad → player ----
@@ -554,8 +683,24 @@ const styles = StyleSheet.create({
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   sub: { marginTop: spacing.xs, lineHeight: 21 },
   section: { marginBottom: spacing.md, gap: spacing.sm },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  sectionHeaderText: { flex: 1 },
   sectionTitle: {},
   sectionHint: { marginBottom: spacing.sm },
+  sectionPointsBadge: {
+    minWidth: 44,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radii.pill,
+    alignItems: 'center',
+  },
+  sectionPointsBadgeWin: { backgroundColor: colors.state.success },
+  sectionPointsBadgeZero: { backgroundColor: colors.surface.cardSubtle },
   lockBanner: { marginBottom: spacing.md, backgroundColor: colors.surface.cardSubtle },
   lockRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   slot: {
@@ -580,6 +725,15 @@ const styles = StyleSheet.create({
   slotText: { flex: 1 },
   crest: { width: 28, height: 28 },
   crestFallback: { backgroundColor: colors.surface.cardSubtle, borderRadius: radii.sm },
+  pointsPill: {
+    minWidth: 44,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radii.pill,
+    alignItems: 'center',
+  },
+  pointsPillWin: { backgroundColor: colors.state.success },
+  pointsPillZero: { backgroundColor: colors.surface.cardSubtle },
   rankBadge: {
     width: 28,
     height: 28,

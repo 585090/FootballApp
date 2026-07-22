@@ -30,8 +30,8 @@ export const DEFAULT_POINTS_CONFIG: PointsConfig = {
   match: { exactScore: 5, correctOutcome: 2, correctGoalDifference: 1, oneTeamScoreCorrect: 1, miss: 0 },
   firstGoalScorer: { exact: 5, miss: 0 },
   groupStanding: { exactPosition: 3, offByOne: 2, offByTwo: 1, offByThreeOrMore: 0 },
-  goldenBoot: { exact: 15, miss: 0 },
-  topThree: { champion: 10, finalist: 6, third: 4, teamInTopThreeBonus: 2 },
+  goldenBoot: { exact: 5, miss: 0 },
+  topThree: { champion: 3, finalist: 3, third: 3, teamInTopThreeBonus: 2 },
 };
 
 let cached: PointsConfig | null = null;

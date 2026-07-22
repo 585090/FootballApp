@@ -83,7 +83,8 @@ export default function GroupDetailScreen() {
   }
 
   const sortedMembers = [...group.members].sort((a, b) => (b.points ?? 0) - (a.points ?? 0));
-  const showTournamentBreakdown = group.gamemode === 3 || group.gamemode === 4;
+  const normalizedGamemode = Number(group.gamemode);
+  const showTournamentBreakdown = normalizedGamemode === 3 || normalizedGamemode === 4;
 
   return (
     <Screen>

@@ -50,7 +50,7 @@ test('summarizeTournamentPerformance combines top scorer, podium and WC groups',
         { rank: 2, teamId: 10, teamName: 'Spain' },
         { rank: 3, teamId: 30, teamName: 'Brazil' },
       ],
-      pointsAwarded: { goldenBoot: 15, topThree: 8 },
+      pointsAwarded: { goldenBoot: 5, topThree: 7 },
     },
     tournamentResult: {
       goldenBoot: { playerId: 9, playerName: 'Alice' },

@@ -11,6 +11,7 @@ const {
 } = require('../utils/groupStandingScoring');
 const { incrementPlayerScore } = require('../controllers/PlayerController');
 const {
+  getMatches,
   getStandings,
   getScorers,
   COMPETITIONS_TO_TRACK,
@@ -88,49 +89,123 @@ async function payoutWorldCupGroupStandings() {
   return scored;
 }
 
-// Attempts to pull final top scorer + top-3 standings from football-data.org.
-// Returns null on any failure so the caller can decide whether to skip the
-// cycle or fall back to a manual override. We only treat the response as
-// authoritative if both pieces are present.
-async function autoFetchResult(competition) {
-  let scorersData;
-  let standingsData;
-  try {
-    [scorersData, standingsData] = await Promise.all([
-      getScorers(competition, { limit: 1 }),
-      getStandings(competition),
-    ]);
-  } catch (err) {
-    if (isRateLimit(err)) {
-      console.warn(`[tournament-cron] rate limit on ${competition}, retrying next cycle`);
-    } else {
-      console.error(`[tournament-cron] auto-fetch failed for ${competition}:`, err.message);
-    }
-    return null;
-  }
+function hasResolvedGoldenBoot(result) {
+  return result?.goldenBoot?.playerId != null;
+}
 
-  const top = Array.isArray(scorersData?.scorers) && scorersData.scorers[0];
-  if (!top?.player?.id) return null;
-  const goldenBoot = {
-    playerId: top.player.id,
-    playerName: top.player.name ?? null,
-    goals: top.goals ?? null,
+function hasResolvedTopThree(result) {
+  return Array.isArray(result?.topThreeTeamIds) && result.topThreeTeamIds.length >= 3;
+}
+
+function pickWinnerAndLoser(match) {
+  const winner = match?.score?.winner;
+  if (winner === 'HOME_TEAM') {
+    return {
+      winner: { id: match.homeTeam?.id ?? null, name: match.homeTeam?.name ?? null },
+      loser: { id: match.awayTeam?.id ?? null, name: match.awayTeam?.name ?? null },
+    };
+  }
+  if (winner === 'AWAY_TEAM') {
+    return {
+      winner: { id: match.awayTeam?.id ?? null, name: match.awayTeam?.name ?? null },
+      loser: { id: match.homeTeam?.id ?? null, name: match.homeTeam?.name ?? null },
+    };
+  }
+  return null;
+}
+
+function topThreeFromFinishedMatches(matches) {
+  const finalMatch = matches.find((match) => match?.stage === 'FINAL');
+  const thirdPlaceMatch = matches.find((match) => match?.stage === 'THIRD_PLACE');
+  const finalOutcome = pickWinnerAndLoser(finalMatch);
+  const thirdPlaceOutcome = pickWinnerAndLoser(thirdPlaceMatch);
+  if (!finalOutcome || !thirdPlaceOutcome) return null;
+
+  const ids = [
+    finalOutcome.winner.id,
+    finalOutcome.loser.id,
+    thirdPlaceOutcome.winner.id,
+  ];
+  if (ids.some((id) => id == null)) return null;
+
+  return {
+    topThreeTeamIds: ids,
+    topThreeTeamNames: [
+      finalOutcome.winner.name,
+      finalOutcome.loser.name,
+      thirdPlaceOutcome.winner.name,
+    ],
   };
+}
+
+// Attempts to pull final top scorer + top-3 standings from football-data.org.
+// Each slice resolves independently so a rate limit on one endpoint does not
+// block the other from being persisted and scored on this cycle.
+async function autoFetchResult(competition) {
+  const [scorersResult, standingsResult] = await Promise.allSettled([
+    getScorers(competition, { limit: 1 }),
+    getStandings(competition),
+  ]);
+
+  let goldenBoot = null;
+  if (scorersResult.status === 'fulfilled') {
+    const top = Array.isArray(scorersResult.value?.scorers) && scorersResult.value.scorers[0];
+    if (top?.player?.id) {
+      goldenBoot = {
+        playerId: top.player.id,
+        playerName: top.player.name ?? null,
+        goals: top.goals ?? null,
+      };
+    }
+  } else if (isRateLimit(scorersResult.reason)) {
+    console.warn(`[tournament-cron] scorer rate limit on ${competition}, retrying that slice next cycle`);
+  } else {
+    console.error(`[tournament-cron] scorer auto-fetch failed for ${competition}:`, scorersResult.reason.message);
+  }
 
   // Knockout tournaments expose the final ranking as a TOTAL standings group
   // labelled "FINAL" or similar. We take the first table in any non-group
-  // stage and grab positions 1–3. If we can't find one with 3 rows, bail.
-  const candidate = (standingsData?.standings || []).find((g) => {
-    if (g.type !== 'TOTAL') return false;
-    if (g.group) return false;
-    return Array.isArray(g.table) && g.table.length >= 3;
-  });
-  if (!candidate) return null;
-  const topThreeRows = candidate.table.slice(0, 3);
-  const topThreeTeamIds = topThreeRows.map((row) => row.team?.id).filter((id) => id != null);
-  const topThreeTeamNames = topThreeRows.map((row) => row.team?.name ?? null);
-  if (topThreeTeamIds.length !== 3) return null;
+  // stage and grab positions 1–3.
+  let topThreeTeamIds = null;
+  let topThreeTeamNames = null;
+  if (standingsResult.status === 'fulfilled') {
+    const candidate = (standingsResult.value?.standings || []).find((g) => {
+      if (g.type !== 'TOTAL') return false;
+      if (g.group) return false;
+      return Array.isArray(g.table) && g.table.length >= 3;
+    });
+    if (candidate) {
+      const topThreeRows = candidate.table.slice(0, 3);
+      const ids = topThreeRows.map((row) => row.team?.id).filter((id) => id != null);
+      if (ids.length === 3) {
+        topThreeTeamIds = ids;
+        topThreeTeamNames = topThreeRows.map((row) => row.team?.name ?? null);
+      }
+    }
+  } else if (isRateLimit(standingsResult.reason)) {
+    console.warn(`[tournament-cron] standings rate limit on ${competition}, retrying that slice next cycle`);
+  } else {
+    console.error(`[tournament-cron] standings auto-fetch failed for ${competition}:`, standingsResult.reason.message);
+  }
 
+  if (!topThreeTeamIds) {
+    try {
+      const matchesData = await getMatches(competition, { status: 'FINISHED' });
+      const derived = topThreeFromFinishedMatches(matchesData?.matches || []);
+      if (derived) {
+        topThreeTeamIds = derived.topThreeTeamIds;
+        topThreeTeamNames = derived.topThreeTeamNames;
+      }
+    } catch (err) {
+      if (isRateLimit(err)) {
+        console.warn(`[tournament-cron] match-result rate limit on ${competition}, retrying top-3 slice next cycle`);
+      } else {
+        console.error(`[tournament-cron] match-result auto-fetch failed for ${competition}:`, err.message);
+      }
+    }
+  }
+
+  if (!goldenBoot && !topThreeTeamIds) return null;
   return { goldenBoot, topThreeTeamIds, topThreeTeamNames };
 }
 
@@ -146,6 +221,8 @@ async function payoutPoints(result) {
 
   const actualGoldenBootId = result.goldenBoot?.playerId ?? null;
   const actualTopThree = result.topThreeTeamIds || [];
+  const goldenBootResolved = hasResolvedGoldenBoot(result);
+  const topThreeResolved = hasResolvedTopThree(result);
 
   let scored = 0;
   for (const pred of predictions) {
@@ -154,8 +231,8 @@ async function payoutPoints(result) {
       return slot?.teamId ?? null;
     });
 
-    const needsGoldenBoot = pred.pointsAwarded?.goldenBoot == null;
-    const needsTopThree = pred.pointsAwarded?.topThree == null;
+    const needsGoldenBoot = goldenBootResolved && pred.pointsAwarded?.goldenBoot == null;
+    const needsTopThree = topThreeResolved && pred.pointsAwarded?.topThree == null;
     if (!needsGoldenBoot && !needsTopThree) continue;
 
     let delta = 0;
@@ -199,17 +276,22 @@ async function processCompetition(competition) {
     }
     const auto = await autoFetchResult(competition);
     if (auto) {
+      const update = {
+        source: 'auto',
+        finalizedAt: result?.finalizedAt || new Date(),
+        updatedAt: Date.now(),
+      };
+      if (auto.goldenBoot) {
+        update.goldenBoot = auto.goldenBoot;
+      }
+      if (auto.topThreeTeamIds) {
+        update.topThreeTeamIds = auto.topThreeTeamIds;
+        update.topThreeTeamNames = auto.topThreeTeamNames || [];
+      }
       result = await TournamentResult.findOneAndUpdate(
         { competition, season },
         {
-          $set: {
-            goldenBoot: auto.goldenBoot,
-            topThreeTeamIds: auto.topThreeTeamIds,
-            topThreeTeamNames: auto.topThreeTeamNames,
-            source: 'auto',
-            finalizedAt: result?.finalizedAt || new Date(),
-            updatedAt: Date.now(),
-          },
+          $set: update,
         },
         { new: true, upsert: true, setDefaultsOnInsert: true },
       );

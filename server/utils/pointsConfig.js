@@ -21,13 +21,13 @@ const POINTS_CONFIG = {
     offByThreeOrMore: 0,
   },
   goldenBoot: {
-    exact: 15,
+    exact: 5,
     miss: 0,
   },
   topThree: {
-    champion: 10,        // 1st place correct
-    finalist: 6,         // 2nd place correct
-    third: 4,            // 3rd place correct
+    champion: 3,         // 1st place correct
+    finalist: 3,         // 2nd place correct
+    third: 3,            // 3rd place correct
     teamInTopThreeBonus: 2, // any of user's three teams ends up in actual top 3 but in wrong slot
   },
 };

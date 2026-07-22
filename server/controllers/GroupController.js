@@ -101,7 +101,7 @@ exports.getTournamentSummary = async (req, res) => {
       return res.status(403).json({ error: 'Only group members can view tournament summaries' });
     }
 
-    const competition = TOURNAMENT_COMPETITION_BY_GAMEMODE[String(group.gamemode)];
+    const competition = TOURNAMENT_COMPETITION_BY_GAMEMODE[String(Number(group.gamemode))];
     const season = String(new Date().getFullYear());
     if (!competition) {
       return res.json({
